@@ -1,7 +1,8 @@
 'use strict';
 
-import { Schema, model } from 'mongoose';
+import { Schema, model, Types } from 'mongoose';
 import { IShopping } from './IShopping';
+import { SoldProduct } from './SoldProduct';
 import moment from 'moment';
 
 const ShoppingSchema = new Schema({
@@ -42,6 +43,33 @@ const ShoppingSchema = new Schema({
     sendToCloud: {
         type: Boolean,
         default: false
+    },
+    paymentTransactionId: {
+        type: Types.ObjectId,
+        ref: 'PaymentTransaction',
+        default: null
+    },
+    positionId: {
+        type: Types.ObjectId,
+        ref: 'Position',
+        default: null
+    },
+    products: [
+        {
+            type: SoldProduct,
+            ref: 'SoldProduct',
+            default: null
+        }
+    ],
+    userId: {
+        type: Types.ObjectId,
+        ref: 'User',
+        default: null
+    },
+    clientId: {
+        type: Types.ObjectId,
+        ref: 'Client',
+        default: null
     },
     createdAt: {
         type: Date,

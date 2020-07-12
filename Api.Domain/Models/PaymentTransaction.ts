@@ -1,6 +1,6 @@
 'use strict';
 
-import { Schema, model } from 'mongoose';
+import { Schema, model, Types } from 'mongoose';
 import { IPaymentTransaction } from './IPaymentTransaction';
 import moment from 'moment';
 
@@ -17,6 +17,10 @@ const PaymentTransactionSchema = new Schema({
         type: Object,
         default: {}
     },
+    paymentMethodId: {
+        type: Types.ObjectId,
+        ref: 'PaymentMethod'
+    },
     createdAt: {
         type: Date,
         default: moment().utc().format('YYYY-MM-DDTHH:mm:ss')
@@ -27,6 +31,6 @@ const PaymentTransactionSchema = new Schema({
     }
 });
 
-const PaymentTransaction = model<IPaymentTransaction>('PaymentTransactions', PaymentTransactionSchema);
+const PaymentTransaction = model<IPaymentTransaction>('PaymentTransaction', PaymentTransactionSchema);
 
 export { PaymentTransaction };

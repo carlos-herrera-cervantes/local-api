@@ -22,43 +22,43 @@ const ShiftSchema = new Schema({
     monday: [
         {
             type: Types.ObjectId,
-            ref: 'Dispatcher'
+            ref: 'User'
         }
     ],
     tuesday: [
         {
             type: Types.ObjectId,
-            ref: 'Dispatcher'
+            ref: 'User'
         }
     ],
     wednesday: [
         {
             type: Types.ObjectId,
-            ref: 'Dispatcher'
+            ref: 'User'
         }
     ],
     thursday: [
         {
             type: Types.ObjectId,
-            ref: 'Dispatcher'
+            ref: 'User'
         }
     ],
     friday: [
         {
             type: Types.ObjectId,
-            ref: 'Dispatcher'
+            ref: 'User'
         }
     ],
     saturday: [
         {
             type: Types.ObjectId,
-            ref: 'Dispatcher'
+            ref: 'User'
         }
     ],
     sunday: [
         {
             type: Types.ObjectId,
-            ref: 'Dispatcher'
+            ref: 'User'
         }
     ],
     createdAt: {

@@ -18,8 +18,10 @@
   },
   "homepage": "https://github.com/carlos-herrera-cervantes/local_api#readme",
   "dependencies": {
+    "inversify": "^5.0.1",
     "moment": "^2.27.0",
-    "mongoose": "^5.9.23"
+    "mongoose": "^5.9.23",
+    "reflect-metadata": "^0.1.13"
   },
   "devDependencies": {
     "@types/mongoose": "^5.7.31",

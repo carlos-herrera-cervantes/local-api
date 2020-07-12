@@ -17,8 +17,13 @@
     "url": "https://github.com/carlos-herrera-cervantes/local_api/issues"
   },
   "homepage": "https://github.com/carlos-herrera-cervantes/local_api#readme",
-  "dependencies": {},
+  "dependencies": {
+    "moment": "^2.27.0",
+    "mongoose": "^5.9.23"
+  },
   "devDependencies": {
+    "@types/mongoose": "^5.7.31",
+    "@types/node": "^14.0.22",
     "ts-node": "^8.10.2",
     "typescript": "^3.9.6"
   }

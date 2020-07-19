@@ -4,7 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "watch": "nodemon --exec ts-node -- ./Program.ts"
   },
   "repository": {
     "type": "git",
@@ -18,14 +18,20 @@
   },
   "homepage": "https://github.com/carlos-herrera-cervantes/local_api#readme",
   "dependencies": {
+    "@overnightjs/core": "^1.7.4",
+    "@types/i18n": "^0.8.6",
+    "express": "^4.17.1",
+    "i18n": "^0.10.0",
     "inversify": "^5.0.1",
     "moment": "^2.27.0",
     "mongoose": "^5.9.23",
     "reflect-metadata": "^0.1.13"
   },
   "devDependencies": {
+    "@types/express": "^4.17.7",
     "@types/mongoose": "^5.7.31",
     "@types/node": "^14.0.22",
+    "dotenv": "^8.2.0",
     "ts-node": "^8.10.2",
     "typescript": "^3.9.6"
   }

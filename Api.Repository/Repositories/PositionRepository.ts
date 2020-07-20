@@ -6,6 +6,7 @@ import { IRepository } from './IRepository';
 import { IPosition } from '../../Api.Domain/Models/IPosition';
 import { Position } from '../../Api.Domain/Models/Position';
 
+@injectable()
 class PositionRepository implements IRepository<IPosition> {
 
     public getAllAsync = async (mongoFilter: any): Promise<any> =>

@@ -1,7 +1,8 @@
 'use strict';
 
 const IDENTIFIERS = {
-    IUserRepository: Symbol('UserRepository')
+    IUserRepository: Symbol('UserRepository'),
+    IPositionRepository: Symbol('PositionRepository')
 };
 
 export default IDENTIFIERS;

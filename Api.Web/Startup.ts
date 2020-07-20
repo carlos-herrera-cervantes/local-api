@@ -13,7 +13,7 @@ class Startup extends Server {
         config();
         this.app.use(express.json());
         this.setupDatabase();
-        super.addControllers(configure.configureServices());
+        super.addControllers(configure.mapRepositories());
     }
 
     /**

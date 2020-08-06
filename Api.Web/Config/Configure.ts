@@ -13,6 +13,16 @@ import { IPosition } from '../../Api.Domain/Models/IPosition';
 import { PositionRepository } from '../../Api.Repository/Repositories/PositionRepository';
 import { PositionController } from '../Controllers/PositionController';
 
+import { IShift } from '../../Api.Domain/Models/IShift';
+import { ShiftRepository } from '../../Api.Repository/Repositories/ShiftRepository';
+import { ShiftController } from '../Controllers/ShiftController';
+
+import { IClient } from '../../Api.Domain/Models/IClient';
+import { ClientRepository } from '../../Api.Repository/Repositories/ClientRepository';
+
+import { ICollectMoney } from '../../Api.Domain/Models/ICollectMoney'
+import { CollectRepository } from '../../Api.Repository/Repositories/CollectRepository';
+
 class Configure {
 
     private container: Container;
@@ -27,8 +37,14 @@ class Configure {
 
         const userController = new UserController(reporitories.userRepository);
         const positionController = new PositionController(reporitories.positionRepository);
+        const shiftControllers = new ShiftController(reporitories.shiftRepository);
 
-        controllers.push(userController, positionController);
+        controllers.push(
+            userController,
+            positionController,
+            shiftControllers
+        );
+        
         return controllers;
     }
 
@@ -36,6 +52,9 @@ class Configure {
         return {
             userRepository: this.container.get<IRepository<IUser>>(IDENTIFIERS.IUserRepository),
             positionRepository: this.container.get<IRepository<IPosition>>(IDENTIFIERS.IPositionRepository),
+            shiftRepository: this.container.get<IRepository<IShift>>(IDENTIFIERS.IShiftRepository),
+            clientRepository: this.container.get<IRepository<IClient>>(IDENTIFIERS.IClientRepository),
+            collectRepository: this.container.get<IRepository<ICollectMoney>>(IDENTIFIERS.ICollectRepository)
         };
     }
 
@@ -43,6 +62,9 @@ class Configure {
         this.container = new Container();
         this.container.bind<IRepository<IUser>>(IDENTIFIERS.IUserRepository).to(UserRepository);
         this.container.bind<IRepository<IPosition>>(IDENTIFIERS.IPositionRepository).to(PositionRepository);
+        this.container.bind<IRepository<IShift>>(IDENTIFIERS.IShiftRepository).to(ShiftRepository);
+        this.container.bind<IRepository<IClient>>(IDENTIFIERS.IClientRepository).to(ClientRepository);
+        this.container.bind<IRepository<ICollectMoney>>(IDENTIFIERS.ICollectRepository).to(CollectRepository);
     }
 
 }

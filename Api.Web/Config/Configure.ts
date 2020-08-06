@@ -22,6 +22,7 @@ import { ClientRepository } from '../../Api.Repository/Repositories/ClientReposi
 
 import { ICollectMoney } from '../../Api.Domain/Models/ICollectMoney'
 import { CollectRepository } from '../../Api.Repository/Repositories/CollectRepository';
+import { CollectController } from '../Controllers/CollectController';
 
 class Configure {
 
@@ -38,11 +39,13 @@ class Configure {
         const userController = new UserController(reporitories.userRepository);
         const positionController = new PositionController(reporitories.positionRepository);
         const shiftControllers = new ShiftController(reporitories.shiftRepository);
+        const collectController = new CollectController(reporitories.collectRepository);
 
         controllers.push(
             userController,
             positionController,
-            shiftControllers
+            shiftControllers,
+            collectController
         );
         
         return controllers;

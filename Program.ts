@@ -1,7 +1,6 @@
 'use strict';
 
 import { Startup } from './Api.Web/Startup';
-import { ppid } from 'process';
 
 class Program {
 

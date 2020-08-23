@@ -24,6 +24,10 @@ import { ICollectMoney } from '../../Api.Domain/Models/ICollectMoney'
 import { CollectRepository } from '../../Api.Repository/Repositories/CollectRepository';
 import { CollectController } from '../Controllers/CollectController';
 
+import { ITax } from '../../Api.Domain/Models/ITax';
+import { TaxRepository } from '../../Api.Repository/Repositories/TaxRepository';
+import { TaxController } from '../Controllers/TaxController';
+
 class Configure {
 
     private container: Container;
@@ -40,12 +44,14 @@ class Configure {
         const positionController = new PositionController(reporitories.positionRepository);
         const shiftControllers = new ShiftController(reporitories.shiftRepository);
         const collectController = new CollectController(reporitories.collectRepository);
+        const taxController = new TaxController(reporitories.taxRepository);
 
         controllers.push(
             userController,
             positionController,
             shiftControllers,
-            collectController
+            collectController,
+            taxController
         );
         
         return controllers;
@@ -57,7 +63,8 @@ class Configure {
             positionRepository: this.container.get<IRepository<IPosition>>(IDENTIFIERS.IPositionRepository),
             shiftRepository: this.container.get<IRepository<IShift>>(IDENTIFIERS.IShiftRepository),
             clientRepository: this.container.get<IRepository<IClient>>(IDENTIFIERS.IClientRepository),
-            collectRepository: this.container.get<IRepository<ICollectMoney>>(IDENTIFIERS.ICollectRepository)
+            collectRepository: this.container.get<IRepository<ICollectMoney>>(IDENTIFIERS.ICollectRepository),
+            taxRepository: this.container.get<IRepository<ITax>>(IDENTIFIERS.ITaxRepository)
         };
     }
 
@@ -68,6 +75,7 @@ class Configure {
         this.container.bind<IRepository<IShift>>(IDENTIFIERS.IShiftRepository).to(ShiftRepository);
         this.container.bind<IRepository<IClient>>(IDENTIFIERS.IClientRepository).to(ClientRepository);
         this.container.bind<IRepository<ICollectMoney>>(IDENTIFIERS.ICollectRepository).to(CollectRepository);
+        this.container.bind<IRepository<ITax>>(IDENTIFIERS.ITaxRepository).to(TaxRepository);
     }
 
 }

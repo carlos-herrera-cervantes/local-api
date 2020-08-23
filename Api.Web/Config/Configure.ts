@@ -28,6 +28,20 @@ import { ITax } from '../../Api.Domain/Models/ITax';
 import { TaxRepository } from '../../Api.Repository/Repositories/TaxRepository';
 import { TaxController } from '../Controllers/TaxController';
 
+import { IMeasurementUnit } from '../../Api.Domain/Models/IMeasurementUnit';
+import { MeasurementUnitRepository } from '../../Api.Repository/Repositories/MeasurementUnitRepository';
+import { MeasurementUnitController } from '../Controllers/MeasurementUnitController';
+
+import { IPaymentTransaction } from '../../Api.Domain/Models/IPaymentTransaction';
+import { PaymentTransactionRepository } from '../../Api.Repository/Repositories/PaymentTransactionRepository';
+
+import { IShopping } from '../../Api.Domain/Models/IShopping';
+import { ShoppingRepository } from '../../Api.Repository/Repositories/ShoppingRepository';
+import { ShoppingController } from '../Controllers/ShoppingController';
+
+import { IToken } from '../../Api.Domain/Models/IToken';
+import { TokenRepository } from '../../Api.Repository/Repositories/TokenRepository';
+
 class Configure {
 
     private container: Container;
@@ -38,20 +52,24 @@ class Configure {
 
     public mapRepositories (): Array<any> {
         const controllers = [];
-        const reporitories = this.resolveRepositories();
+        const repositories = this.resolveRepositories();
 
-        const userController = new UserController(reporitories.userRepository);
-        const positionController = new PositionController(reporitories.positionRepository);
-        const shiftControllers = new ShiftController(reporitories.shiftRepository);
-        const collectController = new CollectController(reporitories.collectRepository);
-        const taxController = new TaxController(reporitories.taxRepository);
+        const userController = new UserController(repositories.userRepository);
+        const positionController = new PositionController(repositories.positionRepository);
+        const shiftControllers = new ShiftController(repositories.shiftRepository);
+        const collectController = new CollectController(repositories.collectRepository);
+        const taxController = new TaxController(repositories.taxRepository);
+        const measurementUnitController = new MeasurementUnitController(repositories.measurementUnitRepository);
+        const shoppingController = new ShoppingController(repositories.shoppingRepository);
 
         controllers.push(
             userController,
             positionController,
             shiftControllers,
             collectController,
-            taxController
+            taxController,
+            measurementUnitController,
+            shoppingController
         );
         
         return controllers;
@@ -64,7 +82,11 @@ class Configure {
             shiftRepository: this.container.get<IRepository<IShift>>(IDENTIFIERS.IShiftRepository),
             clientRepository: this.container.get<IRepository<IClient>>(IDENTIFIERS.IClientRepository),
             collectRepository: this.container.get<IRepository<ICollectMoney>>(IDENTIFIERS.ICollectRepository),
-            taxRepository: this.container.get<IRepository<ITax>>(IDENTIFIERS.ITaxRepository)
+            taxRepository: this.container.get<IRepository<ITax>>(IDENTIFIERS.ITaxRepository),
+            measurementUnitRepository: this.container.get<IRepository<IMeasurementUnit>>(IDENTIFIERS.IMeasurementUnitRepository),
+            paymentTransactionRepository: this.container.get<IRepository<IPaymentTransaction>>(IDENTIFIERS.IPaymentTransactionRepository),
+            shoppingRepository: this.container.get<IRepository<IShopping>>(IDENTIFIERS.IShoppingRepository),
+            tokenRepository: this.container.get<IRepository<IToken>>(IDENTIFIERS.ITokenRepository)
         };
     }
 
@@ -76,6 +98,10 @@ class Configure {
         this.container.bind<IRepository<IClient>>(IDENTIFIERS.IClientRepository).to(ClientRepository);
         this.container.bind<IRepository<ICollectMoney>>(IDENTIFIERS.ICollectRepository).to(CollectRepository);
         this.container.bind<IRepository<ITax>>(IDENTIFIERS.ITaxRepository).to(TaxRepository);
+        this.container.bind<IRepository<IMeasurementUnit>>(IDENTIFIERS.IMeasurementUnitRepository).to(MeasurementUnitRepository);
+        this.container.bind<IRepository<IPaymentTransaction>>(IDENTIFIERS.IPaymentTransactionRepository).to(PaymentTransactionRepository);
+        this.container.bind<IRepository<IShopping>>(IDENTIFIERS.IShoppingRepository).to(ShoppingRepository);
+        this.container.bind<IRepository<IToken>>(IDENTIFIERS.ITokenRepository).to(TokenRepository);
     }
 
 }

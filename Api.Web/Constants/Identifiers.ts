@@ -6,7 +6,11 @@ const IDENTIFIERS = {
     IShiftRepository: Symbol('ShiftRepository'),
     IClientRepository: Symbol('ClientRepository'),
     ICollectRepository: Symbol('CollectRepository'),
-    ITaxRepository: Symbol('TaxRepository')
+    ITaxRepository: Symbol('TaxRepository'),
+    IMeasurementUnitRepository: Symbol('MeasurementUnitRepository'),
+    IPaymentTransactionRepository: Symbol('PaymentTransactionRepository'),
+    IShoppingRepository: Symbol('ShoppingRepository'),
+    ITokenRepository: Symbol('TokenRepository')
 };
 
 export default IDENTIFIERS;

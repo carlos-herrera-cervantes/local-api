@@ -2,7 +2,6 @@
 
 import { Schema, model, Types } from 'mongoose';
 import { IProduct } from './IProduct';
-import { ProductTax } from './ProductTax';
 import moment from 'moment';
 
 const ProductSchema = new Schema({
@@ -24,8 +23,8 @@ const ProductSchema = new Schema({
     },
     taxId: [
         {
-            type: ProductTax,
-            ref: 'ProductTax'
+            type: Types.ObjectId,
+            ref: 'Tax'
         }
     ],
     measurementUnitId: {

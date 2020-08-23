@@ -2,7 +2,6 @@
 
 import { Schema, model, Types } from 'mongoose';
 import { IShopping } from './IShopping';
-import { SoldProduct } from './SoldProduct';
 import moment from 'moment';
 
 const ShoppingSchema = new Schema({
@@ -54,13 +53,10 @@ const ShoppingSchema = new Schema({
         ref: 'Position',
         default: null
     },
-    products: [
-        {
-            type: SoldProduct,
-            ref: 'SoldProduct',
-            default: null
-        }
-    ],
+    products: {
+        type: Array,
+        default: []
+    },
     userId: {
         type: Types.ObjectId,
         ref: 'User',

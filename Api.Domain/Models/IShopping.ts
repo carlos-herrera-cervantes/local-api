@@ -1,7 +1,6 @@
 'use strict';
 
 import { Document, Types } from 'mongoose';
-import { ISoldProduct } from './ISoldProduct';
 
 interface IShopping extends Document {
     consecutive: number,
@@ -15,7 +14,7 @@ interface IShopping extends Document {
     sendToCloud?: boolean,
     paymentTransactionId?: Types.ObjectId,
     positionId?: Types.ObjectId,
-    products?: ISoldProduct[],
+    products?: any[],
     userId?: Types.ObjectId,
     clientId?: Types.ObjectId,
     createdAt?: Date,

@@ -5,6 +5,8 @@ import { config } from 'dotenv';
 import express from 'express';
 import { connect, connection } from 'mongoose';
 import { configure } from './Config/Configure';
+import { serve, setup } from 'swagger-ui-express';
+import { swaggerDocument } from './Config/SwaggerConfig';
 
 class Startup extends Server {
 
@@ -13,6 +15,7 @@ class Startup extends Server {
         config();
         this.app.use(express.json());
         this.setupDatabase();
+        this.setupSwagger();
         super.addControllers(configure.mapRepositories());
     }
 
@@ -32,6 +35,12 @@ class Startup extends Server {
         connect(URI, { useNewUrlParser: true, useUnifiedTopology: true });
         connection.on('error', console.error.bind(console, 'MongoDB connection error'));
     }
+
+    /**
+     * Setup the documentation for endpoints
+     * @returns {Void}
+     */
+    private setupSwagger = (): any => this.app.use('/api-docs', serve, setup(swaggerDocument));
 
 }
 

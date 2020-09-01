@@ -90,10 +90,50 @@ const requestBody = {
           },
           role: {
             type: 'string',
-            description: 'User role'
+            description: 'User role',
+            enum: ['Employee', 'StationAdmin', 'SuperAdmin']
           }
         },
         required: ['name', 'description']
+      }
+    }
+  }
+};
+
+const login = {
+  content: {
+    'application/json': {
+      schema: {
+        type: 'object',
+        properties: {
+          email: {
+            type: 'string',
+            description: 'User email'
+          },
+          password: {
+            type: 'string',
+            description: 'User password'
+          }
+        },
+        required: ['email', 'password']
+      }
+    }
+  }
+};
+
+const loginResponse = {
+  description: 'OK response',
+  content: {
+    'application/json': {
+      examples: {
+        collect: {
+          value: {
+            status: true,
+            data: {
+              token: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6ImNhcmxvc0BleGFtcGxlLmNvbSIsImlhdCI6MTU5NDQ5ODczNn0.wdzu6bj_tfWfLpVh7xpypQZNx8pK0zndB9ect96yfRU'
+            }
+          }
+        }
       }
     }
   }
@@ -146,6 +186,15 @@ const userPaths = {
       parameters: generalParameters,
       responses: {
         204: {}
+      }
+    }
+  },
+  '/users/login': {
+    post: {
+      tags: [tag],
+      requestBody: login,
+      responses: {
+        200: loginResponse
       }
     }
   }

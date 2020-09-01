@@ -19,11 +19,13 @@
   "homepage": "https://github.com/carlos-herrera-cervantes/local_api#readme",
   "dependencies": {
     "@overnightjs/core": "^1.7.4",
-    "@types/i18n": "^0.8.6",
+    "bcrypt": "^5.0.0",
     "express": "^4.17.1",
     "i18n": "^0.10.0",
     "inversify": "^5.0.1",
+    "jsonwebtoken": "^8.5.1",
     "moment": "^2.27.0",
+    "mongodb": "^3.6.0",
     "mongoose": "^5.9.23",
     "ramda": "^0.27.1",
     "reflect-metadata": "^0.1.13",
@@ -31,6 +33,7 @@
   },
   "devDependencies": {
     "@types/express": "^4.17.7",
+    "@types/i18n": "^0.8.7",
     "@types/mongoose": "^5.7.31",
     "@types/node": "^14.0.22",
     "@types/ramda": "^0.27.14",

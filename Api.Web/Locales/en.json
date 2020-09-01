@@ -1,0 +1,16 @@
+{
+  "InvalidObjectId": "The entered ID is not valid.",
+  "InvalidPaginateParams": "Must be indicate the page and page size.",
+  "InvalidPaginateNumbers": "The value of page must be greater than 0 / The value of pageSize must be greater than 0 and less than 100.",
+  "AccessDenied": "You don't have the sufficient permissions to do this action.",
+  "InvalidPermissions": "You don't have permission to see this content.",
+  "InvalidToken": "The token is invalid.",
+  "InvalidCredentials": "Wrong user or password.",
+  "UserNotFound": "User not found.",
+  "TaxNotFound": "Tax not found.",
+  "ShoppingNotFound": "Shopping not found",
+  "ShiftNotFound": "Shift not found.",
+  "PositionNotFound": "Position not found.",
+  "MeasurementNotFound": "Measurement not found.",
+  "CollectNotFound": "Collect not found."
+}

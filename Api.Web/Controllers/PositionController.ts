@@ -2,11 +2,17 @@
 
 import { IRepository } from '../../Api.Repository/Repositories/IRepository'
 import { IPosition } from '../../Api.Domain/Models/IPosition';
-import { Controller, Get, ClassMiddleware, Post, Patch, Delete } from '@overnightjs/core';
+import { Controller, Get, ClassMiddleware, Post, Patch, Delete, Middleware } from '@overnightjs/core';
 import { localizer } from '../Middlewares/Localizer';
 import { Request, Response } from 'express';
 import { Request as RequestDto } from '../Models/Request';
 import { ResponseDto } from '../Models/Response';
+import { ErrorMiddleware } from '../Decorators/ErrorMiddleware';
+import { authorize } from '../Middlewares/Authorization';
+import { validator } from '../Middlewares/Validator';
+import { Roles } from '../../Api.Domain/Constants/Roles';
+import { patch } from '../Middlewares/Patch';
+import { positionMiddleware } from '../Middlewares/Position';
 
 @ClassMiddleware(localizer.configureLanguages)
 @Controller('api/v1/positions')
@@ -19,6 +25,10 @@ class PositionController {
     }
 
     @Get()
+    @Middleware(authorize.authenticateUser)
+    @Middleware(validator.validateRole(Roles.StationAdmin, Roles.SuperAdmin))
+    @Middleware(validator.validatePagination)
+    @ErrorMiddleware
     public async getAllAsync (request: Request, response: Response): Promise<any> {
         const { query } = request;
         const dto = new RequestDto(query).setSort().setPagination().setCriteria().setRelation();
@@ -28,6 +38,11 @@ class PositionController {
     }
 
     @Get(':id')
+    @Middleware(authorize.authenticateUser)
+    @Middleware(validator.validateRole(Roles.StationAdmin, Roles.SuperAdmin))
+    @Middleware(validator.isValidObjectId)
+    @Middleware(positionMiddleware.existsById)
+    @ErrorMiddleware
     public async getByIdAsync (request: Request, response: Response): Promise<any> {
         const { params: { id } } = request;
         const user = await this._positionRepository.getByIdAsync(id, {});
@@ -35,6 +50,9 @@ class PositionController {
     }
 
     @Post()
+    @Middleware(authorize.authenticateUser)
+    @Middleware(validator.validateRole(Roles.StationAdmin, Roles.SuperAdmin))
+    @ErrorMiddleware
     public async createAsync (request: Request, response: Response): Promise<any> {
         const { body } = request;
         const result = await this._positionRepository.createAsync(body);
@@ -42,6 +60,12 @@ class PositionController {
     }
 
     @Patch(':id')
+    @Middleware(authorize.authenticateUser)
+    @Middleware(validator.validateRole(Roles.StationAdmin, Roles.SuperAdmin))
+    @Middleware(validator.isValidObjectId)
+    @Middleware(positionMiddleware.existsById)
+    @Middleware(patch.updateDate)
+    @ErrorMiddleware
     public async updateByIdAsync (request: Request, response: Response): Promise<any> {
         const { params: { id }, body } = request;
         const result = await this._positionRepository.updateByIdAsync(id, body);
@@ -49,6 +73,11 @@ class PositionController {
     }
 
     @Delete(':id')
+    @Middleware(authorize.authenticateUser)
+    @Middleware(validator.validateRole(Roles.StationAdmin, Roles.SuperAdmin))
+    @Middleware(validator.isValidObjectId)
+    @Middleware(positionMiddleware.existsById)
+    @ErrorMiddleware
     public async deleteByIdAsync (request: Request, response:Response): Promise<any> {
         const { params:{ id } } = request;
         await this._positionRepository.deleteByIdAsync(id);

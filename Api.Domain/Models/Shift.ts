@@ -69,6 +69,9 @@ const ShiftSchema = new Schema({
         type: Date,
         default: moment().utc().format('YYYY-MM-DDTHH:mm:ss')
     }
+},
+{
+    versionKey: false
 });
 
 const Shift = model<IShift>('Shift', ShiftSchema);

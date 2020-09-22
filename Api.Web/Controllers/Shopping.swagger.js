@@ -176,4 +176,4 @@ const shoppingPaths = {
   }
 };
 
-module.exports = { shoppingPaths };
+module.exports = { shoppingPaths, created };

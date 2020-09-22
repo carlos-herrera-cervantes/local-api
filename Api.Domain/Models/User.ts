@@ -44,6 +44,9 @@ const UserSchema = new Schema({
         type: Date,
         default: moment().utc().format('YYYY-MM-DDTHH:mm:ss')
     }
+},
+{
+    versionKey: false
 });
 
 const User = model<IUser>('User', UserSchema);

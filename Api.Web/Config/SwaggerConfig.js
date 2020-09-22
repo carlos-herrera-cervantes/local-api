@@ -7,6 +7,8 @@ const { shiftPaths } = require('../Controllers/Shift.swagger');
 const { shoppingPaths } = require('../Controllers/Shopping.swagger');
 const { taxPaths } = require('../Controllers/Tax.swagger');
 const { userPaths } = require('../Controllers/User.swagger');
+const { productsPaths } = require('../Controllers/Product.swagger');
+const { paymentMethodPaths } = require('../Controllers/PaymentMethod.swagger');
 const R = require('ramda');
 
 const paths = [
@@ -16,7 +18,9 @@ const paths = [
   shiftPaths,
   shoppingPaths,
   taxPaths,
-  userPaths
+  userPaths,
+  productsPaths,
+  paymentMethodPaths
 ];
 
 const swaggerDocument = {

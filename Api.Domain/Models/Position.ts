@@ -26,6 +26,9 @@ const PositionSchema = new Schema({
         type: Date,
         default: moment().utc().format('YYYY-MM-DDTHH:mm:ss')
     }
+},
+{
+    versionKey: false
 });
 
 const Position = model<IPosition>('Position', PositionSchema);

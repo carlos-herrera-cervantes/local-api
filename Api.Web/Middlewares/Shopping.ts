@@ -14,7 +14,7 @@ class ShoppingMiddleware {
     this._shoppingRepository = shoppingRepository;
   }
 
-  public async existsById (request: Request, response: Response, next: NextFunction): Promise<any> {
+  public existsById = async (request: Request, response: Response, next: NextFunction): Promise<any> => {
     const { params: { id }} = request;
     const shopping = await this._shoppingRepository.getByIdAsync(id, {});
 

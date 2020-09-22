@@ -21,7 +21,7 @@ const ProductSchema = new Schema({
         type: Number,
         default: 0
     },
-    taxId: [
+    taxes: [
         {
             type: Types.ObjectId,
             ref: 'Tax'
@@ -40,6 +40,9 @@ const ProductSchema = new Schema({
         type: Date,
         default: moment().utc().format('YYYY-MM-DDTHH:mm:ss')
     }
+},
+{
+    versionKey: false
 });
 
 const Product = model<IProduct>('Product', ProductSchema);

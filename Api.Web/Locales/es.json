@@ -12,5 +12,15 @@
 	"ShiftNotFound": "Turno no encontrado.",
 	"PositionNotFound": "Posición no encontrada.",
 	"MeasurementNotFound": "Unidad de medida no encontrada.",
-	"CollectNotFound": "Colecta no encontrada."
+	"CollectNotFound": "Colecta no encontrada.",
+	"InvalidClientId": "Ingresa el ID de cliente.",
+	"ClientNotFound": "Cliente no encontrado.",
+	"ProductNotFound": "Producto no encontrado.",
+	"InvalidPayloadProduct": "Los productos deben ser enviados en un arreglo.",
+	"InvalidPropertyIdProduct": "A uno de los productos le falta el ID.",
+	"InvalidPropertyQuantityProduct": "A uno de los productos le falta la cantidad.",
+	"InvalidProduct": "Uno de los productos no existe.",
+	"PaymentMethodNotFound": "Método de pago no encontrado.",
+	"invalid json response body at http://localhost:5000/api/v1/customer-purchases reason: Unexpected end of JSON input": "invalid json response body at http://localhost:5000/api/v1/customer-purchases reason: Unexpected end of JSON input",
+	"Request failed with status code 401": "Request failed with status code 401"
 }

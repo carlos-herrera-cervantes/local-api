@@ -27,17 +27,17 @@ class Request {
     public setPagination (): any {
         const isValidPaginate = 'paginate' in this.queryParams && 'page' in this.queryParams && 'pageSize' in this.queryParams;
 
-        if (isValidPaginate) {
-            const { page, pageSize } = this.queryParams;
-            const intPage = parseInt(page);
-            const intPageSize = parseInt(pageSize);
-            const parsePage = intPage == 1 ? 0 : intPage == 0 ? 0 : intPage -1;
-            
-            this.queryFilter.pagination = { page: parsePage * intPageSize, pageSize: intPageSize };
+        if (!isValidPaginate) {
+            this.queryFilter.pagination = { page: 0, pageSize: 0 };
             return this;
         }
 
-        this.queryFilter.pagination = { page: 0, pageSize: 0 };
+        const { page, pageSize } = this.queryParams;
+        const intPage = parseInt(page);
+        const intPageSize = parseInt(pageSize);
+        const parsePage = intPage == 1 ? 0 : intPage == 0 ? 0 : intPage -1;
+            
+        this.queryFilter.pagination = { page: parsePage * intPageSize, pageSize: intPageSize };
         return this;
     }
 
@@ -61,7 +61,7 @@ class Request {
 
     public setRelation (): any {
         if ('relation' in this.queryParams) {
-            this.queryFilter.relation = JSON.parse(this.queryParams.relation);
+            this.queryFilter.relation = this.queryParams.relation.split(',');
             return this;
         }
 

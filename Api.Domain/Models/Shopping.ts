@@ -7,17 +7,15 @@ import moment from 'moment';
 const ShoppingSchema = new Schema({
     consecutive: {
         type: Number,
-        default: 1,
-        required: true
+        default: 1
     },
     folio: {
         type: String,
-        unique: true,
-        required: true,
+        unique: true
     },
     status: {
         type: String,
-        required: true
+        default: '200'
     },
     iva: {
         type: Number,
@@ -51,12 +49,14 @@ const ShoppingSchema = new Schema({
     positionId: {
         type: Types.ObjectId,
         ref: 'Position',
-        default: null
+        required: true
     },
-    products: {
-        type: Array,
-        default: []
-    },
+    products: [
+        {
+            productId: { type: Types.ObjectId, ref: 'Product' },
+            quantity: { type: Number, default: 0 }
+        }
+    ],
     userId: {
         type: Types.ObjectId,
         ref: 'User',
@@ -65,7 +65,7 @@ const ShoppingSchema = new Schema({
     clientId: {
         type: Types.ObjectId,
         ref: 'Client',
-        default: null
+        required: true
     },
     createdAt: {
         type: Date,
@@ -75,6 +75,9 @@ const ShoppingSchema = new Schema({
         type: Date,
         default: moment().utc().format('YYYY-MM-DDTHH:mm:ss')
     }
+}, 
+{ 
+    versionKey: false 
 });
 
 const Shopping = model<IShopping>('Shopping', ShoppingSchema);

@@ -3,9 +3,9 @@
 import { Document, Types } from 'mongoose';
 
 interface IShopping extends Document {
-    consecutive: number,
-    folio: string,
-    status: string,
+    consecutive?: number,
+    folio?: string,
+    status?: string,
     iva?: number,
     subtotal?: number,
     total?: number,
@@ -13,10 +13,10 @@ interface IShopping extends Document {
     totalLetters?: string,
     sendToCloud?: boolean,
     paymentTransactionId?: Types.ObjectId,
-    positionId?: Types.ObjectId,
+    positionId: Types.ObjectId,
     products?: any[],
     userId?: Types.ObjectId,
-    clientId?: Types.ObjectId,
+    clientId: Types.ObjectId,
     createdAt?: Date,
     updatedAt?: Date,
 }

@@ -13,15 +13,20 @@ import { validator } from '../Middlewares/Validator';
 import { Roles } from '../../Api.Domain/Constants/Roles';
 import { patch } from '../Middlewares/Patch';
 import { positionMiddleware } from '../Middlewares/Position';
+import { clientMiddleware } from '../Middlewares/Client';
+import { shoppingModule } from '../Modules/ShoppingModule';
+import { IShopping } from '../../Api.Domain/Models/IShopping';
 
 @ClassMiddleware(localizer.configureLanguages)
 @Controller('api/v1/positions')
 class PositionController {
 
     private readonly _positionRepository: IRepository<IPosition>;
+    private readonly _shoppingRepository: IRepository<IShopping>;
 
-    constructor (positionRepository: IRepository<IPosition>) {
+    constructor (positionRepository: IRepository<IPosition>, shoppingRepository: IRepository<IShopping>) {
         this._positionRepository = positionRepository;
+        this._shoppingRepository = shoppingRepository;
     }
 
     @Get()
@@ -56,6 +61,19 @@ class PositionController {
     public async createAsync (request: Request, response: Response): Promise<any> {
         const { body } = request;
         const result = await this._positionRepository.createAsync(body);
+        return ResponseDto.created(true, result, response);
+    }
+
+    @Post(':id/shoppings')
+    @Middleware(authorize.authenticateUser)
+    @Middleware(validator.validateRole(Roles.Employee, Roles.StationAdmin, Roles.SuperAdmin))
+    @Middleware(positionMiddleware.existsById)
+    @Middleware(clientMiddleware.existsById)
+    @ErrorMiddleware
+    public async createSaleThroughPosition (request: Request, response: Response): Promise<any> {
+        const { body: { clientId }, params: { id }, headers: { userId } } = request;
+        const shopping = await shoppingModule.createShoppingObject(clientId, id, userId.toString());
+        const result = await this._shoppingRepository.createAsync(shopping);
         return ResponseDto.created(true, result, response);
     }
 

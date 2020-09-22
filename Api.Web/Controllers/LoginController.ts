@@ -39,7 +39,7 @@ class LoginController {
       return ResponseDto.badRequest(false, response, 'InvalidCredentials');
     }
 
-    const token = sign({ email }, process.env.SECRET_KEY);
+    const token = sign({ email, id: user._id, role: user.role }, process.env.SECRET_KEY);
     const instance = new Token({ token, email, role: user.role, userId: user._id });
     await this._tokenRepository.createAsync(instance);
     return ResponseDto.ok(true, { token }, response);

@@ -14,7 +14,7 @@ class CollectMiddleware {
     this._collectRepository = collectRepository;
   }
 
-  public async existsById (request: Request, response: Response, next: NextFunction): Promise<any> {
+  public existsById = async (request: Request, response: Response, next: NextFunction): Promise<any> => {
     const { params: { id } } = request;
     const collect = await this._collectRepository.getByIdAsync(id, {});
 

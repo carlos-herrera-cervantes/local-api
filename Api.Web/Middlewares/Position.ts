@@ -14,7 +14,7 @@ class PositionMiddleware {
     this._positionRepository = positionRepository;
   }
 
-  public async existsById (request: Request, response: Response, next: NextFunction): Promise<any> {
+  public existsById = async (request: Request, response: Response, next: NextFunction): Promise<any> => {
     const { params: { id } } = request;
     const position = await this._positionRepository.getByIdAsync(id, {});
 

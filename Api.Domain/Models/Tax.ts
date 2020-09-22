@@ -15,6 +15,10 @@ const TaxSchema = new Schema({
         type: Boolean,
         default: true
     },
+    percentage: {
+        type: Number,
+        default: 0
+    },
     createdAt: {
         type: Date,
         default: moment().utc().format('YYYY-MM-DDTHH:mm:ss')
@@ -23,6 +27,9 @@ const TaxSchema = new Schema({
         type: Date,
         default: moment().utc().format('YYYY-MM-DDTHH:mm:ss')
     }
+},
+{
+    versionKey: false
 });
 
 const Tax = model<ITax>('Tax', TaxSchema);

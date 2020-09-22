@@ -35,6 +35,12 @@ import { ShoppingRepository } from '../../Api.Repository/Repositories/ShoppingRe
 import { IToken } from '../../Api.Domain/Models/IToken';
 import { TokenRepository } from '../../Api.Repository/Repositories/TokenRepository';
 
+import { IProduct } from '../../Api.Domain/Models/IProduct';
+import { ProductRepository } from '../../Api.Repository/Repositories/ProductRepository';
+
+import { IPaymentMethod } from '../../Api.Domain/Models/IPaymentMethod';
+import { PaymentMethodRepository } from '../../Api.Repository/Repositories/PaymentMethodRepository';
+
 let container = new Container();
 
 container.bind<IRepository<IUser>>(IDENTIFIERS.IUserRepository).to(UserRepository);
@@ -47,6 +53,8 @@ container.bind<IRepository<IMeasurementUnit>>(IDENTIFIERS.IMeasurementUnitReposi
 container.bind<IRepository<IPaymentTransaction>>(IDENTIFIERS.IPaymentTransactionRepository).to(PaymentTransactionRepository);
 container.bind<IRepository<IShopping>>(IDENTIFIERS.IShoppingRepository).to(ShoppingRepository);
 container.bind<IRepository<IToken>>(IDENTIFIERS.ITokenRepository).to(TokenRepository);
+container.bind<IRepository<IProduct>>(IDENTIFIERS.IProductRepository).to(ProductRepository);
+container.bind<IRepository<IPaymentMethod>>(IDENTIFIERS.IPaymentMethodRepository).to(PaymentMethodRepository);
 
 const resolveRepositories = () => (
   {
@@ -59,7 +67,9 @@ const resolveRepositories = () => (
     measurementUnitRepository: container.get<IRepository<IMeasurementUnit>>(IDENTIFIERS.IMeasurementUnitRepository),
     paymentTransactionRepository: container.get<IRepository<IPaymentTransaction>>(IDENTIFIERS.IPaymentTransactionRepository),
     shoppingRepository: container.get<IRepository<IShopping>>(IDENTIFIERS.IShoppingRepository),
-    tokenRepository: container.get<IRepository<IToken>>(IDENTIFIERS.ITokenRepository)
+    tokenRepository: container.get<IRepository<IToken>>(IDENTIFIERS.ITokenRepository),
+    productRepository: container.get<IRepository<IProduct>>(IDENTIFIERS.IProductRepository),
+    paymentMethodRepository: container.get<IRepository<IPaymentMethod>>(IDENTIFIERS.IPaymentMethodRepository)
   }
 );
 

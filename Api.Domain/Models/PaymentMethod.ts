@@ -30,6 +30,9 @@ const PaymentMethodSchema = new Schema({
         type: Date,
         default: moment().utc().format('YYYY-MM-DDTHH:mm:ss')
     }
+},
+{
+    versionKey: false
 });
 
 const PaymentMethod = model<IPaymentMethod>('PaymentMethod', PaymentMethodSchema);

@@ -1,8 +1,6 @@
 'use strict';
 
-const shoppingSwagger = require('./Shopping.swagger')
-
-const tag = 'Positions';
+const tag = 'Products';
 
 const ok = {
   description: 'OK response',
@@ -15,9 +13,10 @@ const ok = {
             data: [
               {
                 _id: '5f4312fea39146efe94eb0fb',
-                status: '200',
-                name: 'North 1',
-                number: 1,
+                name: 'Aceite RE',
+                price: 45,
+                pricePublic: 50,
+                description: 'Aceite para auto',
                 createdAt: '2011-01-21T11:33:21Z',
                 updatedAt: '2011-01-21T11:33:21Z'
               }
@@ -39,9 +38,10 @@ const created = {
             status: true,
             data: {
               _id: '5f4312fea39146efe94eb0fb',
-              status: '200',
-              name: 'North 1',
-              number: 1,
+              name: 'Aceite RE',
+              price: 45,
+              pricePublic: 50,
+              description: 'Aceite para auto',
               createdAt: '2011-01-21T11:33:21Z',
               updatedAt: '2011-01-21T11:33:21Z'
             }
@@ -81,77 +81,30 @@ const generalParameters = [
   {
     name: 'id',
     in: 'path',
-    description: 'Position ID',
+    description: 'Product ID',
     required: true,
     schema: { type: 'string' },
   },
 ];
 
-const positionPaths = {
-  '/positions': {
+const productsPaths = {
+  '/products': {
     get: {
       tags: [tag],
       responses: {
         200: ok
       }
-    },
-    post: {
-      tags: [tag],
-      requestBody,
-      responses: {
-        201: created
-      }
     }
   },
-  '/positions/{id}': {
+  '/products/{id}': {
     get: {
       tags: [tag],
       parameters: generalParameters,
       responses: {
         200: created
       }
-    },
-    patch: {
-      tags: [tag],
-      parameters: generalParameters,
-      requestBody,
-      responses: {
-        201: created
-      }
-    },
-    delete: {
-      tags: [tag],
-      parameters: generalParameters,
-      responses: {
-        204: {}
-      }
-    }
-  },
-  '/positions/{positionId}/shoppings': {
-    post: {
-      tags: [tag],
-      parameters: generalParameters,
-      requestBody: {
-        content: {
-          'application/json': {
-            schema: {
-              type: 'object',
-              properties: {
-                clientId: {
-                  type: 'string',
-                  description: 'The ID of client'
-                }
-              },
-              required: ['clientId']
-            }
-          }
-        }
-      },
-      responses: {
-        201: shoppingSwagger.created
-      }
     }
   }
 };
 
-module.exports = { positionPaths };
+module.exports = { productsPaths };

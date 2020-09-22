@@ -1,6 +1,6 @@
 'use strict';
 
-const tag = 'Positions';
+const tag = 'Shifts';
 
 const ok = {
   description: 'OK response',

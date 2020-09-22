@@ -10,7 +10,9 @@ const IDENTIFIERS = {
     IMeasurementUnitRepository: Symbol('MeasurementUnitRepository'),
     IPaymentTransactionRepository: Symbol('PaymentTransactionRepository'),
     IShoppingRepository: Symbol('ShoppingRepository'),
-    ITokenRepository: Symbol('TokenRepository')
+    ITokenRepository: Symbol('TokenRepository'),
+    IProductRepository: Symbol('ProductRepository'),
+    IPaymentMethodRepository: Symbol('PaymentMethodRepository')
 };
 
 export default IDENTIFIERS;

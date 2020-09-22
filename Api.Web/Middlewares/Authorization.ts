@@ -14,6 +14,7 @@ class Authorize {
     }
 
     const isValidToken = await verify(authorization.split(' ').pop(), process.env.SECRET_KEY);
+    request.headers.userId = isValidToken.id;
 
     if (isValidToken) {
       return next();

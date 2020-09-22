@@ -3,9 +3,9 @@
 import { Document, Types } from 'mongoose';
 
 interface IPaymentTransaction extends Document {
-    status: number,
+    status?: number,
     quantity: number,
-    metadata: any,
+    metadata?: any,
     paymentMethodId: Types.ObjectId,
     createdAt?: Date,
     updatedAt?: Date

@@ -12,5 +12,13 @@
   "ShiftNotFound": "Shift not found.",
   "PositionNotFound": "Position not found.",
   "MeasurementNotFound": "Measurement not found.",
-  "CollectNotFound": "Collect not found."
+  "CollectNotFound": "Collect not found.",
+  "InvalidClientId": "Enter the Client ID.",
+  "ClientNotFound": "Client not found.",
+  "ProductNotFound": "Product not found.",
+  "InvalidPayloadProduct": "The products must be sent inside an array.",
+  "InvalidPropertyIdProduct": "One of the products is missing the ID.",
+  "InvalidPropertyQuantityProduct": "One of the products is missing the quantity.",
+  "InvalidProduct": "One of the products does not exists.",
+  "PaymentMethodNotFound": "Payment method not found."
 }

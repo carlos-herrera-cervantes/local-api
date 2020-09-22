@@ -14,7 +14,7 @@ class MeasurementUnitMiddleware {
     this._measurementUnitRepository = measurementUnitRepository;
   }
 
-  public async existsById (request: Request, response: Response, next: NextFunction): Promise<any> {
+  public existsById = async (request: Request, response: Response, next: NextFunction): Promise<any> => {
     const { params: { id } } = request;
     const measurement = await this._measurementUnitRepository.getByIdAsync(id, {});
 

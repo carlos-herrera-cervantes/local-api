@@ -14,7 +14,7 @@ class TaxMiddleware {
     this._taxRepository = taxRepository;
   }
 
-  public async existsById (request: Request, response: Response, next: NextFunction): Promise<any> {
+  public existsById = async (request: Request, response: Response, next: NextFunction): Promise<any> => {
     const { params: { id } } = request;
     const tax = await this._taxRepository.getByIdAsync(id, {});
 

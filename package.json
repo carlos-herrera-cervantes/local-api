@@ -19,6 +19,7 @@
   "homepage": "https://github.com/carlos-herrera-cervantes/local_api#readme",
   "dependencies": {
     "@overnightjs/core": "^1.7.4",
+    "axios": "^0.20.0",
     "bcrypt": "^5.0.0",
     "express": "^4.17.1",
     "i18n": "^0.10.0",

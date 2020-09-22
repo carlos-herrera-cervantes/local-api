@@ -15,7 +15,7 @@ class UserMiddleware {
     this._userRepository = userRepository;
   }
 
-  public async existsById (request: Request, response: Response, next: NextFunction): Promise<any> {
+  public existsById = async (request: Request, response: Response, next: NextFunction): Promise<any> => {
     const { params: { id }} = request;
     const user = await this._userRepository.getByIdAsync(id, {});
 
@@ -24,7 +24,7 @@ class UserMiddleware {
     next();
   }
 
-  public async existsByEmail (request: Request, response: Response, next: NextFunction): Promise<any> {
+  public existsByEmail = async (request: Request, response: Response, next: NextFunction): Promise<any> => {
     const { body: { email } } = request;
     const dto = new RequestDto({ email }).setCriteria();
     const user = await this._userRepository.getOneAsync(dto.queryFilter);

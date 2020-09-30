@@ -12,8 +12,12 @@ import { Request as RequestDto } from '../Models/Request';
 import { ResponseDto } from '../Models/Response';
 import { IPaymentMethod } from "../../Api.Domain/Models/IPaymentMethod";
 import { paymentMethodMiddleware } from "../Middlewares/PaymentMethod";
+import { shiftMiddleware } from "../Middlewares/Shift";
 
 @ClassMiddleware(localizer.configureLanguages)
+@ClassMiddleware(authorize.authenticateUser)
+@ClassMiddleware(validator.validateRole(Roles.Employee, Roles.StationAdmin, Roles.SuperAdmin))
+@ClassMiddleware(shiftMiddleware.isAssignToCurrentShift)
 @Controller('api/v1/payment-methods')
 class PaymentMethodController {
 
@@ -24,8 +28,6 @@ class PaymentMethodController {
   }
 
   @Get()
-  @Middleware(authorize.authenticateUser)
-  @Middleware(validator.validateRole(Roles.Employee, Roles.StationAdmin, Roles.SuperAdmin))
   @Middleware(validator.validatePagination)
   @ErrorMiddleware
   public async getAllAsync(request: Request, response: Response): Promise<any> {
@@ -37,8 +39,6 @@ class PaymentMethodController {
   }
 
   @Get(':id')
-  @Middleware(authorize.authenticateUser)
-  @Middleware(validator.validateRole(Roles.Employee, Roles.StationAdmin, Roles.SuperAdmin))
   @Middleware(validator.isValidObjectId)
   @Middleware(paymentMethodMiddleware.existsById)
   @ErrorMiddleware

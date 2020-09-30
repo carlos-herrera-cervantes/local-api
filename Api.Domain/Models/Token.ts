@@ -2,7 +2,7 @@
 
 import { Schema, model, Types } from 'mongoose';
 import { IToken } from './IToken';
-import moment from 'moment';
+import { setTimestamps } from './Base';
 
 const TokenSchema = new Schema({
     userId: {
@@ -25,11 +25,11 @@ const TokenSchema = new Schema({
     },
     createdAt: {
         type: Date,
-        default: moment().utc().format('YYYY-MM-DDTHH:mm:ss')
+        default: setTimestamps()
     },
     updatedAt: {
         type: Date,
-        default: moment().utc().format('YYYY-MM-DDTHH:mm:ss')
+        default: setTimestamps()
     }
 },
 {

@@ -21,7 +21,11 @@ class CloudService {
       if (R.equals(response.status, 201)) return 'OK';
     }
     catch (error) {
-      if (R.equals(error.response.status, 401)) await this.authenticate();
+      if (R.equals(R.pathOr('', ['code'], error), 'ECONNREFUSED')) return;
+
+      if (R.equals(R.pathOr(0, ['response', 'status'], error), 401)) await this.authenticate();
+
+      return;
     }
   }
 

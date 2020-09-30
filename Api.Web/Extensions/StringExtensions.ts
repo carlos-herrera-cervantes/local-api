@@ -1,11 +1,17 @@
 'use strict';
 
-class StringExtensions extends String {
+import R from "ramda";
 
-    public static toBoolean = (value: any): boolean => value === 'true' ? true: false;
+export {};
 
-    public static toInt = (value: any): number => parseInt(value);
-
+declare global {
+    interface String {
+        toBoolean(): boolean;
+        toInt(): number;
+    }
 }
 
-export { StringExtensions };
+String.prototype.toBoolean = function () {
+    const _self = this as string;
+    return R.equals(_self, 'true');
+}

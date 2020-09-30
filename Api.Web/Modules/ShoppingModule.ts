@@ -9,15 +9,27 @@ import { Types } from 'mongoose';
 import R from 'ramda';
 import { IProduct } from "../../Api.Domain/Models/IProduct";
 import '../Extensions/ArrayExtensions';
+import { IUser } from "../../Api.Domain/Models/IUser";
+import { ICollectMoney } from "../../Api.Domain/Models/ICollectMoney";
 
 class ShoppingModule {
 
   private readonly _shoppingRepository: IRepository<IShopping>;
   private readonly _productRepository: IRepository<IProduct>;
+  private readonly _userRepository: IRepository<IUser>;
+  private readonly _collectRepository: IRepository<ICollectMoney>;
 
-  constructor (shoppingRepository: IRepository<IShopping>, productRepository: IRepository<IProduct>) {
+  constructor (
+    shoppingRepository: IRepository<IShopping>, 
+    productRepository: IRepository<IProduct>,
+    userRepository: IRepository<IUser>,
+    collectRepository: IRepository<ICollectMoney>
+  )
+  {
     this._shoppingRepository = shoppingRepository;
     this._productRepository = productRepository;
+    this._userRepository = userRepository;
+    this._collectRepository = collectRepository;
   }
 
   public createStructureToSendCloud = async (id: string): Promise<any> => {
@@ -109,6 +121,45 @@ class ShoppingModule {
     const totalLetters = this.getNumberToLetter(total).trim();
     
     return Object.assign(shopping.toObject(), { total, subtotal, iva, totalLetters });
+  }
+
+  public addQuantityPaymentToUser = async (userId: string, shopping: any): Promise<any> => {
+    const user = await this._userRepository.getByIdAsync(userId, {});
+
+    shopping.Payments.forEach(payment => {
+      if (R.equals(payment.Key, '09')) {
+        user.cashMoneyAmount += payment.Quantity;
+        user.save();
+        return;
+      }
+
+      user.cardMoneyAmount += payment.Quantity;
+      user.save();
+    });
+  }
+
+  public doReport = async (shift: any, userId: string): Promise<any> => {
+    const { start, end } = shift;
+    const filterBase = { createdAt: { $gte: start, $lte: end }, userId };
+    const filterShopping = {
+      criteria: R.merge(filterBase, { status: '201' }),
+      relation: [
+        'products->productId',
+        'paymentTransactionId.paymentMethodId'
+      ]
+    };
+
+    const [ shoppings, collects ] = await Promise.all([ 
+      this._shoppingRepository.getAllAsync(filterShopping), 
+      this._collectRepository.getAllAsync({ criteria: filterBase })
+    ]);
+
+    return {
+      products: this.countProducts(shoppings),
+      payments: this.countPayments(shoppings),
+      collectsCash: R.filter<ICollectMoney>(collect => R.equals(collect.type, 'cash'), collects),
+      collectsCards: R.filter<ICollectMoney>(collect => R.equals(collect.type, 'card'), collects)
+    };
   }
 
   private getNumberToLetter (number: number, currency?: any): string {
@@ -246,8 +297,59 @@ class ShoppingModule {
     return stringMillions + ' ' + stringThousands;
   }
 
+  private countProducts (shoppings: Array<any>): Array<any> {
+    if (R.isEmpty(shoppings)) return [];
+
+    const categories = [];
+
+    R.forEach(shopping => {
+      R.forEach(product => {
+        const label = R.pathOr('NA', ['productId', 'name'], product);
+        const amount = R.pathOr(0, ['productId', 'pricePublic'], product);
+        const existsCategory = R.find(R.propEq('label', label))(categories);
+
+        if (existsCategory) {
+          const index = R.findIndex(R.propEq('label', label))(categories);
+          categories[index].amount += amount;
+        }
+        else {
+          categories.push({ label, amount });
+        }
+      }, shopping.products)
+    }, shoppings)
+ 
+    return categories;
+  }
+
+  private countPayments (shoppings: Array<any>): Array<any> {
+    if (R.isEmpty(shoppings)) return [];
+
+    const categories = [];
+
+    R.forEach(shopping => {
+      const label = R.pathOr('NA', ['paymentTransactionId', 'paymentMethodId', 'name'], shopping);
+      const amount = R.pathOr(0, ['paymentTransactionId', 'quantity'], shopping);
+      const existsCategory = R.find(R.propEq('label', label))(categories);
+
+      if (existsCategory) {
+        const index = R.findIndex(R.propEq('label', label))(categories);
+        categories[index].amount += amount;
+      }
+      else {
+        categories.push({ label, amount });
+      }
+    }, shoppings);
+
+    return categories;
+  }
+
 }
 
-const shoppingModule = new ShoppingModule(resolveRepositories().shoppingRepository, resolveRepositories().productRepository);
+const shoppingModule = new ShoppingModule(
+  resolveRepositories().shoppingRepository,
+  resolveRepositories().productRepository,
+  resolveRepositories().userRepository,
+  resolveRepositories().collectRepository
+);
 
 export { shoppingModule };

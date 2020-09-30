@@ -197,6 +197,14 @@ const userPaths = {
         200: loginResponse
       }
     }
+  },
+  '/users/logout': {
+    post: {
+      tags: [tag],
+      responses: {
+        204: {}
+      }
+    }
   }
 };
 

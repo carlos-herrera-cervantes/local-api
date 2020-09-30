@@ -11,8 +11,13 @@ import { ErrorMiddleware } from '../Decorators/ErrorMiddleware';
 import { Roles } from '../../Api.Domain/Constants/Roles';
 import { patch } from '../Middlewares/Patch';
 import { shiftMiddleware } from '../Middlewares/Shift';
+import '../Extensions/StringExtensions';
+import '../Extensions/ArrayExtensions';
+import { shoppingModule } from '../Modules/ShoppingModule';
+import { collectModule } from '../Modules/CollectModule';
 
 @ClassMiddleware(localizer.configureLanguages)
+@ClassMiddleware(authorize.authenticateUser)
 @Controller('api/v1/shifts')
 class ShiftController {
     private readonly _shiftRepository: IRepository<IShift>;
@@ -22,7 +27,6 @@ class ShiftController {
     }
 
     @Get()
-    @Middleware(authorize.authenticateUser)
     @Middleware(validator.validateRole(Roles.StationAdmin, Roles.SuperAdmin))
     @Middleware(validator.validatePagination)
     @ErrorMiddleware
@@ -31,11 +35,25 @@ class ShiftController {
         const dto = new RequestDto(query).setSort().setPagination().setCriteria().setRelation();
         const totalDocuments = await this._shiftRepository.countAsync(dto.queryFilter);
         const users = await this._shiftRepository.getAllAsync(dto.queryFilter);
+        
         return ResponseDto.ok(true, users, response, query, totalDocuments);
     }
 
+    @Get('cut')
+    @Middleware(validator.validateRole(Roles.Employee))
+    @ErrorMiddleware
+    public async cut (request: Request, response: Response): Promise<any> {
+        const { query: { previous }, headers: { userId } } = request;
+        const isPrevious = (previous as string || 'false').toBoolean();
+        const [ shifts, _ ] = await Promise.all([ this._shiftRepository.getAllAsync({}), collectModule.collectAll(userId as string) ]);
+        const selected = isPrevious ? shifts.getPrevious() : shifts.getCurrent();
+        const intervalsUtc = selected.getIntervalsUtc(isPrevious);
+        const report = await shoppingModule.doReport(intervalsUtc, userId as string);
+
+        return ResponseDto.created(true, report, response);
+    }
+
     @Get(':id')
-    @Middleware(authorize.authenticateUser)
     @Middleware(validator.validateRole(Roles.StationAdmin, Roles.SuperAdmin))
     @Middleware(validator.isValidObjectId)
     @Middleware(shiftMiddleware.existsById)
@@ -47,7 +65,6 @@ class ShiftController {
     }
 
     @Post()
-    @Middleware(authorize.authenticateUser)
     @Middleware(validator.validateRole(Roles.StationAdmin, Roles.SuperAdmin))
     @ErrorMiddleware
     public async createAsync (request: Request, response: Response): Promise<any> {
@@ -57,7 +74,6 @@ class ShiftController {
     }
 
     @Patch(':id')
-    @Middleware(authorize.authenticateUser)
     @Middleware(validator.validateRole(Roles.StationAdmin, Roles.SuperAdmin))
     @Middleware(validator.isValidObjectId)
     @Middleware(shiftMiddleware.existsById)
@@ -69,8 +85,18 @@ class ShiftController {
         return ResponseDto.created(true, result, response);
     }
 
+    @Patch(':id/add-user')
+    @Middleware(validator.validateRole(Roles.StationAdmin, Roles.SuperAdmin))
+    @Middleware(validator.isValidObjectId)
+    @Middleware(shiftMiddleware.existsById)
+    @ErrorMiddleware
+    public async addUser (request: Request, response: Response): Promise<any> {
+        const { params: { id }, body } = request;
+        const result = await this._shiftRepository.updateByIdAsync(id, body);
+        return ResponseDto.created(true, result, response);
+    }
+
     @Delete(':id')
-    @Middleware(authorize.authenticateUser)
     @Middleware(validator.validateRole(Roles.StationAdmin, Roles.SuperAdmin))
     @Middleware(validator.isValidObjectId)
     @Middleware(shiftMiddleware.existsById)

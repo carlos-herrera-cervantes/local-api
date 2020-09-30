@@ -2,22 +2,18 @@
 
 import { ObjectID } from 'mongodb';
 import { Request, Response, NextFunction } from 'express';
-import { StringExtensions } from '../Extensions/StringExtensions';
 import { ResponseDto } from '../Models/Response';
 import R from 'ramda';
 import { IRepository } from '../../Api.Repository/Repositories/IRepository';
-import { IToken } from '../../Api.Domain/Models/IToken';
 import { resolveRepositories } from '../Config/Container';
 import { IProduct } from '../../Api.Domain/Models/IProduct';
-import { ObjectExtensions } from '../Extensions/ObjectExtensions';
+import '../Extensions/StringExtensions';
 
 class Validator {
 
-  private readonly _tokenRepository: IRepository<IToken>;
   private readonly _productRepository: IRepository<IProduct>;
 
-  constructor (tokenRepository: IRepository<IToken>, productRepository: IRepository<IProduct>) {
-    this._tokenRepository = tokenRepository;
+  constructor (productRepository: IRepository<IProduct>) {
     this._productRepository = productRepository;
   }
 
@@ -33,16 +29,16 @@ class Validator {
   public validatePagination (request: Request, response: Response, next: NextFunction): any {
     const { query: { paginate, page, pageSize } } = request;
 
-    if (!paginate) return next();
+    if (R.isNil(paginate)) return next();
 
-    const notHavePages = !page || !pageSize;
-    const invalidPaginateParams = StringExtensions.toBoolean(paginate) && notHavePages;
+    const notHavePages = R.or(R.isNil(page), R.isNil(pageSize));
+    const invalidPaginateParams = R.and((paginate as string || 'false').toBoolean(), notHavePages);
 
     if (invalidPaginateParams) return ResponseDto.badRequest(false, response, 'InvalidPaginateParams');
 
-    const intPage = StringExtensions.toInt(page);
-    const intPageSize = StringExtensions.toInt(pageSize);
-    const invalidPages = intPage <= 0 || intPageSize <= 0 || intPageSize > 100;
+    const intPage = parseInt(page as string);
+    const intPageSize = parseInt(pageSize as string);
+    const invalidPages = R.lte(intPage, 0) || R.lte(intPageSize, 0) || R.gt(intPageSize, 100);
 
     if (invalidPages) return ResponseDto.badRequest(false, response, 'InvalidPaginateNumbers');
 
@@ -50,10 +46,8 @@ class Validator {
   }
 
   public validateRole = (...roles) => async (request: Request, response: Response, next: NextFunction): Promise<any> => {
-    const { headers: { authorization } } = request;
-    const extractedToken = authorization.split(' ').pop();
-    const token = await this._tokenRepository.getOneAsync({ criteria: { token: extractedToken } });
-    const isValidRole = roles.includes(R.pathOr('', ['role'], token));
+    const { headers: { role } } = request;
+    const isValidRole = roles.includes(role);
 
     if (isValidRole) return next();
 
@@ -63,11 +57,11 @@ class Validator {
   public validateProduct = async (request: Request, response: Response, next: NextFunction): Promise<any> => {
     const { body: { products } } = request;
 
-    if (!Array.isArray(products)) return ResponseDto.badRequest(false, response, 'InvalidPayloadProduct');
+    if (R.not(Array.isArray(products))) return ResponseDto.badRequest(false, response, 'InvalidPayloadProduct');
 
     products.forEach(product =>
-      !ObjectExtensions.containsKey(product, 'productId') ? ResponseDto.badRequest(false, response, 'InvalidPropertyIdProduct') :
-      !ObjectExtensions.containsKey(product, 'quantity') ? ResponseDto.badRequest(false, response, 'InvalidPropertyQuantityProduct') : 
+      R.not(R.hasIn('productId', product)) ? ResponseDto.badRequest(false, response, 'InvalidPropertyIdProduct') :
+      R.not(R.hasIn('quantity', product)) ? ResponseDto.badRequest(false, response, 'InvalidPropertyQuantityProduct') : 
       true
     );
 
@@ -75,13 +69,13 @@ class Validator {
     const filter = { criteria: { _id: { $in: productsIds } } };
     const result = await this._productRepository.getAllAsync(filter);
     
-    if (!R.equals(productsIds.length, result.length)) return ResponseDto.badRequest(false, response, 'InvalidProduct');
+    if (R.not(R.equals(productsIds.length, result.length))) return ResponseDto.badRequest(false, response, 'InvalidProduct');
 
     next();
   }
 
 }
 
-const validator = new Validator(resolveRepositories().tokenRepository, resolveRepositories().productRepository);
+const validator = new Validator(resolveRepositories().productRepository);
 
 export { validator };

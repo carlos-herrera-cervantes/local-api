@@ -15,6 +15,8 @@ import { patch } from '../Middlewares/Patch';
 import { measurementUnitMiddleware } from '../Middlewares/MeasurementUnit';
 
 @ClassMiddleware(localizer.configureLanguages)
+@ClassMiddleware(authorize.authenticateUser)
+@ClassMiddleware(validator.validateRole(Roles.StationAdmin, Roles.SuperAdmin))
 @Controller('api/v1/measurement-units')
 class MeasurementUnitController {
 
@@ -25,8 +27,6 @@ class MeasurementUnitController {
     }
 
     @Get()
-    @Middleware(authorize.authenticateUser)
-    @Middleware(validator.validateRole(Roles.StationAdmin, Roles.SuperAdmin))
     @Middleware(validator.validatePagination)
     @ErrorMiddleware
     public async getAllAsync (request: Request, response: Response): Promise<any> {
@@ -38,8 +38,6 @@ class MeasurementUnitController {
     }
 
     @Get(':id')
-    @Middleware(authorize.authenticateUser)
-    @Middleware(validator.validateRole(Roles.StationAdmin, Roles.SuperAdmin))
     @Middleware(validator.isValidObjectId)
     @Middleware(measurementUnitMiddleware.existsById)
     @ErrorMiddleware
@@ -50,8 +48,6 @@ class MeasurementUnitController {
     }
 
     @Post()
-    @Middleware(authorize.authenticateUser)
-    @Middleware(validator.validateRole(Roles.StationAdmin, Roles.SuperAdmin))
     @ErrorMiddleware
     public async createAsync (request: Request, response: Response): Promise<any> {
         const { body } = request;
@@ -60,8 +56,6 @@ class MeasurementUnitController {
     }
 
     @Patch(':id')
-    @Middleware(authorize.authenticateUser)
-    @Middleware(validator.validateRole(Roles.StationAdmin, Roles.SuperAdmin))
     @Middleware(validator.isValidObjectId)
     @Middleware(measurementUnitMiddleware.existsById)
     @Middleware(patch.updateDate)
@@ -73,8 +67,6 @@ class MeasurementUnitController {
     }
 
     @Delete(':id')
-    @Middleware(authorize.authenticateUser)
-    @Middleware(validator.validateRole(Roles.StationAdmin, Roles.SuperAdmin))
     @Middleware(validator.isValidObjectId)
     @Middleware(measurementUnitMiddleware.existsById)
     @ErrorMiddleware

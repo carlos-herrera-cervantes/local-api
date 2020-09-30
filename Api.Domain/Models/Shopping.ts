@@ -2,7 +2,7 @@
 
 import { Schema, model, Types } from 'mongoose';
 import { IShopping } from './IShopping';
-import moment from 'moment';
+import { setTimestamps } from './Base';
 
 const ShoppingSchema = new Schema({
     consecutive: {
@@ -69,11 +69,11 @@ const ShoppingSchema = new Schema({
     },
     createdAt: {
         type: Date,
-        default: moment().utc().format('YYYY-MM-DDTHH:mm:ss')
+        default: setTimestamps()
     },
     updatedAt: {
         type: Date,
-        default: moment().utc().format('YYYY-MM-DDTHH:mm:ss')
+        default: setTimestamps()
     }
 }, 
 { 

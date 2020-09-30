@@ -1,9 +1,9 @@
 'use strict';
 
-import { Schema, Types, model } from 'mongoose';
+import { Schema, model } from 'mongoose';
 import { IUser } from './IUser';
 import { Roles } from '../Constants/Roles';
-import moment from 'moment';
+import { setTimestamps } from './Base';
 
 const UserSchema = new Schema({
     email: {
@@ -38,11 +38,11 @@ const UserSchema = new Schema({
     },
     createdAt: {
         type: Date,
-        default: moment().utc().format('YYYY-MM-DDTHH:mm:ss')
+        default: setTimestamps()
     },
     updatedAt: {
         type: Date,
-        default: moment().utc().format('YYYY-MM-DDTHH:mm:ss')
+        default: setTimestamps()
     }
 },
 {

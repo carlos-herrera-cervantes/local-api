@@ -13,9 +13,10 @@ import { IUser } from '../../Api.Domain/Models/IUser';
 import { IToken } from '../../Api.Domain/Models/IToken';
 import { Token } from '../../Api.Domain/Models/Token';
 import { userMiddleware } from '../Middlewares/User';
+import { authorize } from '../Middlewares/Authorization';
 
 @ClassMiddleware(localizer.configureLanguages)
-@Controller('api/v1/users/login')
+@Controller('api/v1/users')
 class LoginController {
 
   private readonly _userRepository: IRepository<IUser>;
@@ -26,7 +27,7 @@ class LoginController {
     this._tokenRepository = tokenRepository;
   }
 
-  @Post()
+  @Post('login')
   @Middleware(userMiddleware.existsByEmail)
   @ErrorMiddleware
   public async login(request: Request, response: Response): Promise<any> {
@@ -43,6 +44,17 @@ class LoginController {
     const instance = new Token({ token, email, role: user.role, userId: user._id });
     await this._tokenRepository.createAsync(instance);
     return ResponseDto.ok(true, { token }, response);
+  }
+
+  @Post('logout')
+  @Middleware(authorize.authenticateUser)
+  @ErrorMiddleware
+  public async logout (request: Request, response: Response): Promise<any> {
+    const { headers: { authorization } } = request;
+    const token = authorization.split(' ').pop();
+    await this._tokenRepository.deleteManyAsync({ criteria: { token } });
+
+    return ResponseDto.noContent(true, response);
   }
 
 }

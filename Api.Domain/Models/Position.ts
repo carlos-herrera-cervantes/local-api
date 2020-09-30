@@ -2,7 +2,7 @@
 
 import { Schema, model } from 'mongoose';
 import { IPosition } from './IPosition';
-import moment from 'moment';
+import { setTimestamps } from './Base';
 
 const PositionSchema = new Schema({
     status: {
@@ -20,11 +20,11 @@ const PositionSchema = new Schema({
     },
     createdAt: {
         type: Date,
-        default: moment().utc().format('YYYY-MM-DDTHH:mm:ss')
+        default: setTimestamps()
     },
     updatedAt: {
         type: Date,
-        default: moment().utc().format('YYYY-MM-DDTHH:mm:ss')
+        default: setTimestamps()
     }
 },
 {

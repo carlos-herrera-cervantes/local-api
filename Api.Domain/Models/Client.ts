@@ -3,7 +3,7 @@
 import { Schema, model } from 'mongoose';
 import { IClient } from './IClient';
 import { Genders } from '../Constants/Genders';
-import moment from 'moment';
+import { setTimestamps } from './Base';
 
 const ClientSchema = new Schema({
     firstName: {
@@ -24,11 +24,11 @@ const ClientSchema = new Schema({
     },
     createdAt: {
         type: Date,
-        default: moment().utc().format('YYYY-MM-DDTHH:mm:ss')
+        default: setTimestamps()
     },
     updatedAt: {
         type: Date,
-        default: moment().utc().format('YYYY-MM-DDTHH:mm:ss')
+        default: setTimestamps()
     }
 },
 {

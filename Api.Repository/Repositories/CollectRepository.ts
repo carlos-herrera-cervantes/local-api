@@ -4,16 +4,17 @@ import { injectable } from 'inversify';
 import { IRepository } from './IRepository';
 import { ICollectMoney } from '../../Api.Domain/Models/ICollectMoney';
 import { CollectMoney } from '../../Api.Domain/Models/CollectMoney';
+import R from 'ramda';
 
 @injectable()
 class CollectRepository implements IRepository<ICollectMoney> {
 
     public getAllAsync = async (mongoFilter: any): Promise<any> =>
         await CollectMoney
-            .find(mongoFilter.criteria)
-            .skip(mongoFilter.pagination.page)
-            .limit(mongoFilter.pagination.pageSize)
-            .sort(mongoFilter.sort);
+            .find(R.pathOr({}, ['criteria'], mongoFilter))
+            .skip(R.pathOr(0, ['pagination', 'page'], mongoFilter))
+            .limit(R.pathOr(0, ['pagination', 'pageSize'], mongoFilter))
+            .sort(R.pathOr({}, ['sort'], mongoFilter));
 
     public getByIdAsync = async (id: string, mongoFilter: any): Promise<any> => await CollectMoney.findById(id);
 

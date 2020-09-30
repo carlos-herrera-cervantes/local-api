@@ -2,7 +2,7 @@
 
 import { Schema, model, Types } from 'mongoose';
 import { IProduct } from './IProduct';
-import moment from 'moment';
+import { setTimestamps } from './Base';
 
 const ProductSchema = new Schema({
     name: {
@@ -34,11 +34,11 @@ const ProductSchema = new Schema({
     },
     createdAt: {
         type: Date,
-        default: moment().utc().format('YYYY-MM-DDTHH:mm:ss')
+        default: setTimestamps()
     },
     updatedAt: {
         type: Date,
-        default: moment().utc().format('YYYY-MM-DDTHH:mm:ss')
+        default: setTimestamps()
     }
 },
 {

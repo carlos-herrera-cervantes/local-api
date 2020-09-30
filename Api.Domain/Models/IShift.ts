@@ -4,6 +4,7 @@ import { Document } from 'mongoose';
 
 interface IShift extends Document {
     name: string,
+    order: number,
     startTime: string,
     endTime: string,
     monday?: string[],
@@ -15,6 +16,8 @@ interface IShift extends Document {
     sunday?: string[],
     createdAt?: Date,
     updatedAt?: Date,
+
+    getIntervalsUtc(isPrevious): any
 }
 
 export { IShift };

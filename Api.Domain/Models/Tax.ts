@@ -1,6 +1,6 @@
 import { Schema, model } from 'mongoose';
 import { ITax } from './ITax';
-import moment from 'moment';
+import { setTimestamps } from './Base';
 
 const TaxSchema = new Schema({
     name: {
@@ -21,11 +21,11 @@ const TaxSchema = new Schema({
     },
     createdAt: {
         type: Date,
-        default: moment().utc().format('YYYY-MM-DDTHH:mm:ss')
+        default: setTimestamps()
     },
     updatedAt: {
         type: Date,
-        default: moment().utc().format('YYYY-MM-DDTHH:mm:ss')
+        default: setTimestamps
     }
 },
 {

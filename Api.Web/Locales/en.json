@@ -20,5 +20,10 @@
   "InvalidPropertyIdProduct": "One of the products is missing the ID.",
   "InvalidPropertyQuantityProduct": "One of the products is missing the quantity.",
   "InvalidProduct": "One of the products does not exists.",
-  "PaymentMethodNotFound": "Payment method not found."
+  "PaymentMethodNotFound": "Payment method not found.",
+  "NotAssignToShift": "You are not assigned to this shift.",
+  "SaleAlreadyClosed": "The sale is already closed.",
+  "TypeCollect": "Set the type of collect.",
+  "QuantityCollect": "Set the quantity to take. Values at 0 are not accepted.",
+  "TakeQuantityCollect": "The quantity to take is greater than the employee has."
 }

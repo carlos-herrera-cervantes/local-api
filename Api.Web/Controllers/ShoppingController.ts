@@ -19,8 +19,14 @@ import { paymentMethodMiddleware } from '../Middlewares/PaymentMethod';
 import { PaymentTransaction } from '../../Api.Domain/Models/PaymentTransaction';
 import { cloudService } from '../../Api.Client/Services/Cloud';
 import R from 'ramda';
+import { shiftMiddleware } from '../Middlewares/Shift';
+import { ShiftModule } from '../Modules/ShiftModule';
+import { positionMiddleware } from '../Middlewares/Position';
 
 @ClassMiddleware(localizer.configureLanguages)
+@ClassMiddleware(authorize.authenticateUser)
+@ClassMiddleware(validator.validateRole(Roles.Employee, Roles.StationAdmin, Roles.SuperAdmin))
+@ClassMiddleware(shiftMiddleware.isAssignToCurrentShift)
 @Controller('api/v1/shoppings')
 class ShoppingController {
 
@@ -33,8 +39,6 @@ class ShoppingController {
     }
 
     @Get()
-    @Middleware(authorize.authenticateUser)
-    @Middleware(validator.validateRole(Roles.Employee, Roles.StationAdmin, Roles.SuperAdmin))
     @Middleware(validator.validatePagination)
     @ErrorMiddleware
     public async getAllAsync (request: Request, response: Response): Promise<any> {
@@ -46,8 +50,6 @@ class ShoppingController {
     }
 
     @Get(':id')
-    @Middleware(authorize.authenticateUser)
-    @Middleware(validator.validateRole(Roles.Employee, Roles.StationAdmin, Roles.SuperAdmin))
     @Middleware(validator.isValidObjectId)
     @Middleware(shoppingMiddleware.existsById)
     @ErrorMiddleware
@@ -58,9 +60,19 @@ class ShoppingController {
         return ResponseDto.ok(true, user, response);
     }
 
+    @Get('positions/:id')
+    @Middleware(validator.isValidObjectId)
+    @Middleware(positionMiddleware.existsById)
+    @ErrorMiddleware
+    public async getByUserId (request: Request, response: Response): Promise<any> {
+        const { headers: { currentShift, userId }, params: { id } } = request;
+        const { start, end } = ShiftModule.getDateUtc(currentShift);
+        const filter = { criteria: { createdAt: { $gte: start, $lte: end }, userId, status: { $in: ['202', '203', '200'] }, positionId: id } };
+        const result = await this._shoppingRepository.getAllAsync(filter);
+        return ResponseDto.ok(true, result , response);
+    }
+
     @Post()
-    @Middleware(authorize.authenticateUser)
-    @Middleware(validator.validateRole(Roles.Employee, Roles.StationAdmin, Roles.SuperAdmin))
     @ErrorMiddleware
     public async createAsync (request: Request, response: Response): Promise<any> {
         const { body } = request;
@@ -69,8 +81,6 @@ class ShoppingController {
     }
 
     @Patch(':id')
-    @Middleware(authorize.authenticateUser)
-    @Middleware(validator.validateRole(Roles.Employee, Roles.StationAdmin, Roles.SuperAdmin))
     @Middleware(validator.isValidObjectId)
     @Middleware(shoppingMiddleware.existsById)
     @Middleware(patch.updateDate)
@@ -82,8 +92,6 @@ class ShoppingController {
     }
 
     @Patch(':id/products')
-    @Middleware(authorize.authenticateUser)
-    @Middleware(validator.validateRole(Roles.Employee, Roles.StationAdmin, Roles.SuperAdmin))
     @Middleware(validator.isValidObjectId)
     @Middleware(shoppingMiddleware.existsById)
     @Middleware(validator.validateProduct)
@@ -96,8 +104,6 @@ class ShoppingController {
     }
 
     @Patch(':id/calculate-total')
-    @Middleware(authorize.authenticateUser)
-    @Middleware(validator.validateRole(Roles.Employee, Roles.StationAdmin, Roles.SuperAdmin))
     @Middleware(validator.isValidObjectId)
     @Middleware(shoppingMiddleware.existsById)
     @ErrorMiddleware
@@ -110,8 +116,6 @@ class ShoppingController {
     }
 
     @Patch(':id/pay')
-    @Middleware(authorize.authenticateUser)
-    @Middleware(validator.validateRole(Roles.Employee, Roles.StationAdmin, Roles.SuperAdmin))
     @Middleware(validator.isValidObjectId)
     @Middleware(shoppingMiddleware.existsById)
     @Middleware(paymentMethodMiddleware.existsById)
@@ -123,19 +127,18 @@ class ShoppingController {
         const created = await this._paymentTransaction.createAsync(paymentTransaction);
         shopping.paymentTransactionId = created._id;
         shopping.status = '203';
+        shopping.save();
         
-        const result = await this._shoppingRepository.updateByIdAsync(shopping._id, shopping);
-        return ResponseDto.created(true, result, response);
+        return ResponseDto.created(true, shopping, response);
     }
 
     @Patch(':id/close')
-    @Middleware(authorize.authenticateUser)
-    @Middleware(validator.validateRole(Roles.Employee, Roles.StationAdmin, Roles.SuperAdmin))
     @Middleware(validator.isValidObjectId)
     @Middleware(shoppingMiddleware.existsById)
+    @Middleware(shoppingMiddleware.isAlreadyClosed)
     @ErrorMiddleware
     public async close (request: Request, response: Response): Promise<any> {
-        const { params: { id }} = request;
+        const { params: { id }, headers: { userId } } = request;
         const shopping = await this._shoppingRepository.getByIdAsync(id, {});
         shopping.status = '201';
 
@@ -143,13 +146,15 @@ class ShoppingController {
         const responseCloud = await cloudService.createCustomerPurchase(shoppingForCloud);
         shopping.sendToCloud = R.equals(responseCloud, 'OK');
 
-        const result = await this._shoppingRepository.updateByIdAsync(id, shopping);
-        return ResponseDto.created(true, result, response);
+        await Promise.all([
+            shoppingModule.addQuantityPaymentToUser(userId as string, shoppingForCloud),
+            shopping.save()
+        ]);
+
+        return ResponseDto.created(true, shopping, response);
     }
 
     @Delete(':id')
-    @Middleware(authorize.authenticateUser)
-    @Middleware(validator.validateRole(Roles.Employee, Roles.StationAdmin, Roles.SuperAdmin))
     @Middleware(validator.isValidObjectId)
     @Middleware(shoppingMiddleware.existsById)
     @ErrorMiddleware

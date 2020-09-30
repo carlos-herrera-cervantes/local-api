@@ -4,16 +4,17 @@ import { injectable } from 'inversify';
 import { IRepository } from './IRepository';
 import { IShift } from '../../Api.Domain/Models/IShift';
 import { Shift } from '../../Api.Domain/Models/Shift';
+import R from 'ramda';
 
 @injectable()
 class ShiftRepository implements IRepository<IShift> {
 
     public getAllAsync = async (mongoFilter: any): Promise<any> =>
         await Shift
-            .find(mongoFilter.criteria)
-            .skip(mongoFilter.pagination.page)
-            .limit(mongoFilter.pagination.pageSize)
-            .sort(mongoFilter.sort);
+            .find(R.pathOr({}, ['criteria'], mongoFilter))
+            .skip(R.pathOr(0, ['pagination', 'page'], mongoFilter))
+            .limit(R.pathOr(0, ['pagination', 'pageSize'], mongoFilter))
+            .sort(R.pathOr({}, ['sort'], mongoFilter))
 
     public getByIdAsync = async (id: string, mongoFilter: any): Promise<any> => await Shift.findById(id);
 

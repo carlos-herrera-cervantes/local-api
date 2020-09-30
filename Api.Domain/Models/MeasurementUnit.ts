@@ -2,7 +2,7 @@
 
 import { Schema, model } from 'mongoose';
 import { IMeasurementUnit } from './IMeasurementUnit';
-import moment from 'moment';
+import { setTimestamps } from './Base';
 
 const MeasurementUnitSchema = new Schema({
     name: {
@@ -19,11 +19,11 @@ const MeasurementUnitSchema = new Schema({
     },
     createdAt: {
         type: Date,
-        default: moment().utc().format('YYYY-MM-DDTHH:mm:ss')
+        default: setTimestamps()
     },
     updatedAt: {
         type: Date,
-        default: moment().utc().format('YYYY-MM-DDTHH:mm:ss')
+        default: setTimestamps()
     }
 },
 {

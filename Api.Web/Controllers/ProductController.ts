@@ -12,8 +12,11 @@ import { Request, Response } from 'express';
 import { Request as RequestDto } from '../Models/Request';
 import { ResponseDto } from '../Models/Response';
 import { productMiddleware } from "../Middlewares/Product";
+import { shiftMiddleware } from "../Middlewares/Shift";
 
 @ClassMiddleware(localizer.configureLanguages)
+@ClassMiddleware(authorize.authenticateUser)
+@ClassMiddleware(shiftMiddleware.isAssignToCurrentShift)
 @Controller('api/v1/products')
 class ProductController {
 
@@ -24,7 +27,6 @@ class ProductController {
   }
 
   @Get()
-  @Middleware(authorize.authenticateUser)
   @Middleware(validator.validateRole(Roles.Employee, Roles.StationAdmin, Roles.SuperAdmin))
   @Middleware(validator.validatePagination)
   @ErrorMiddleware
@@ -37,7 +39,6 @@ class ProductController {
   }
 
   @Get(':id')
-  @Middleware(authorize.authenticateUser)
   @Middleware(validator.validateRole(Roles.Employee, Roles.StationAdmin, Roles.SuperAdmin))
   @Middleware(validator.isValidObjectId)
   @Middleware(productMiddleware.existsById)
@@ -49,8 +50,7 @@ class ProductController {
   }
 
   @Patch(':id')
-  @Middleware(authorize.authenticateUser)
-  @Middleware(validator.validateRole(Roles.Employee, Roles.StationAdmin, Roles.SuperAdmin))
+  @Middleware(validator.validateRole(Roles.StationAdmin, Roles.SuperAdmin))
   @Middleware(validator.isValidObjectId)
   @Middleware(productMiddleware.existsById)
   @ErrorMiddleware

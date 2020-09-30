@@ -5,6 +5,7 @@ import { IShopping } from "../../Api.Domain/Models/IShopping";
 import { NextFunction, Request, Response } from "express";
 import { ResponseDto } from "../Models/Response";
 import { resolveRepositories } from '../Config/Container';
+import R from "ramda";
 
 class ShoppingMiddleware {
 
@@ -19,6 +20,15 @@ class ShoppingMiddleware {
     const shopping = await this._shoppingRepository.getByIdAsync(id, {});
 
     if (!shopping) return ResponseDto.notFound(false, response, 'ShoppingNotFound');
+
+    next();
+  }
+
+  public isAlreadyClosed = async (request: Request, response: Response, next: NextFunction): Promise<any> => {
+    const { params: { id }} = request;
+    const shopping = await this._shoppingRepository.getByIdAsync(id, {});
+
+    if (R.equals(shopping.status, '201')) return ResponseDto.badRequest(false, response, 'SaleAlreadyClosed');
 
     next();
   }

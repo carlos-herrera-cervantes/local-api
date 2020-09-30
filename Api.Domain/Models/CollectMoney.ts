@@ -2,7 +2,7 @@
 
 import { Schema, model, Types } from 'mongoose';
 import { ICollectMoney } from './ICollectMoney';
-import moment from 'moment';
+import { setTimestamps } from './Base';
 
 const CollectMoneySchema = new Schema({
     userId: {
@@ -13,13 +13,17 @@ const CollectMoneySchema = new Schema({
         type: Number,
         default: 0
     },
+    type: {
+        type: String,
+        default: 'cash'
+    },
     createdAt: {
         type: Date,
-        default: moment().utc().format('YYYY-MM-DDTHH:mm:ss')
+        default: setTimestamps()
     },
     updatedAt: {
         type: Date,
-        default: moment().utc().format('YYYY-MM-DDTHH:mm:ss')
+        default: setTimestamps()
     }
 },
 {

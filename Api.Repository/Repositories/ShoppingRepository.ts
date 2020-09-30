@@ -5,6 +5,7 @@ import { IRepository } from './IRepository';
 import { IShopping } from '../../Api.Domain/Models/IShopping';
 import { Shopping } from '../../Api.Domain/Models/Shopping';
 import { MongoDBModule } from '../Modules/MongoDBModule';
+import R from 'ramda';
 
 @injectable()
 class ShoppingRepository implements IRepository<IShopping> {
@@ -13,9 +14,9 @@ class ShoppingRepository implements IRepository<IShopping> {
         const model = MongoDBModule.buildFilter(Shopping, mongoFilter);
 
         return await model
-            .skip(mongoFilter.pagination.page)
-            .limit(mongoFilter.pagination.pageSize)
-            .sort(mongoFilter.sort);
+            .skip(R.pathOr(0, ['pagination', 'page'], mongoFilter))
+            .limit(R.pathOr(0, ['pagination', 'pageSize'], mongoFilter))
+            .sort(R.pathOr({}, ['sort'], mongoFilter));
     }
 
     public getByIdAsync = async (id: string, mongoFilter: any): Promise<any> => await MongoDBModule.buildFilter(Shopping, mongoFilter, 'findById', id);

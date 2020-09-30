@@ -2,7 +2,7 @@
 
 import { Schema, model } from 'mongoose';
 import { IPaymentMethod } from './IPaymentMethod';
-import moment from 'moment';
+import { setTimestamps } from './Base';
 
 const PaymentMethodSchema = new Schema({
     key: {
@@ -24,11 +24,11 @@ const PaymentMethodSchema = new Schema({
     },
     createdAt: {
         type: Date,
-        default: moment().utc().format('YYYY-MM-DDTHH:mm:ss')
+        default: setTimestamps()
     },
     updatedAt: {
         type: Date,
-        default: moment().utc().format('YYYY-MM-DDTHH:mm:ss')
+        default: setTimestamps()
     }
 },
 {

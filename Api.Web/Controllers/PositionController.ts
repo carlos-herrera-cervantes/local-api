@@ -16,8 +16,11 @@ import { positionMiddleware } from '../Middlewares/Position';
 import { clientMiddleware } from '../Middlewares/Client';
 import { shoppingModule } from '../Modules/ShoppingModule';
 import { IShopping } from '../../Api.Domain/Models/IShopping';
+import { shiftMiddleware } from '../Middlewares/Shift';
 
 @ClassMiddleware(localizer.configureLanguages)
+@ClassMiddleware(authorize.authenticateUser)
+@ClassMiddleware(shiftMiddleware.isAssignToCurrentShift)
 @Controller('api/v1/positions')
 class PositionController {
 
@@ -30,8 +33,7 @@ class PositionController {
     }
 
     @Get()
-    @Middleware(authorize.authenticateUser)
-    @Middleware(validator.validateRole(Roles.StationAdmin, Roles.SuperAdmin))
+    @Middleware(validator.validateRole(Roles.Employee, Roles.StationAdmin, Roles.SuperAdmin))
     @Middleware(validator.validatePagination)
     @ErrorMiddleware
     public async getAllAsync (request: Request, response: Response): Promise<any> {
@@ -43,8 +45,7 @@ class PositionController {
     }
 
     @Get(':id')
-    @Middleware(authorize.authenticateUser)
-    @Middleware(validator.validateRole(Roles.StationAdmin, Roles.SuperAdmin))
+    @Middleware(validator.validateRole(Roles.Employee, Roles.StationAdmin, Roles.SuperAdmin))
     @Middleware(validator.isValidObjectId)
     @Middleware(positionMiddleware.existsById)
     @ErrorMiddleware
@@ -55,7 +56,6 @@ class PositionController {
     }
 
     @Post()
-    @Middleware(authorize.authenticateUser)
     @Middleware(validator.validateRole(Roles.StationAdmin, Roles.SuperAdmin))
     @ErrorMiddleware
     public async createAsync (request: Request, response: Response): Promise<any> {
@@ -65,7 +65,6 @@ class PositionController {
     }
 
     @Post(':id/shoppings')
-    @Middleware(authorize.authenticateUser)
     @Middleware(validator.validateRole(Roles.Employee, Roles.StationAdmin, Roles.SuperAdmin))
     @Middleware(positionMiddleware.existsById)
     @Middleware(clientMiddleware.existsById)
@@ -78,7 +77,6 @@ class PositionController {
     }
 
     @Patch(':id')
-    @Middleware(authorize.authenticateUser)
     @Middleware(validator.validateRole(Roles.StationAdmin, Roles.SuperAdmin))
     @Middleware(validator.isValidObjectId)
     @Middleware(positionMiddleware.existsById)
@@ -91,7 +89,6 @@ class PositionController {
     }
 
     @Delete(':id')
-    @Middleware(authorize.authenticateUser)
     @Middleware(validator.validateRole(Roles.StationAdmin, Roles.SuperAdmin))
     @Middleware(validator.isValidObjectId)
     @Middleware(positionMiddleware.existsById)

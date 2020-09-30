@@ -2,11 +2,16 @@
 
 import { Schema, model, Types } from 'mongoose';
 import { IShift } from './IShift';
-import moment from 'moment';
+import { ShiftModule } from '../../Api.Web/Modules/ShiftModule';
+import { setTimestamps } from './Base';
 
 const ShiftSchema = new Schema({
     name: {
         type: String,
+        required: true
+    },
+    order: {
+        type: Number,
         required: true
     },
     startTime: {
@@ -63,16 +68,20 @@ const ShiftSchema = new Schema({
     ],
     createdAt: {
         type: Date,
-        default: moment().utc().format('YYYY-MM-DDTHH:mm:ss')
+        default: setTimestamps()
     },
     updatedAt: {
         type: Date,
-        default: moment().utc().format('YYYY-MM-DDTHH:mm:ss')
+        default: setTimestamps()
     }
 },
 {
     versionKey: false
 });
+
+ShiftSchema.methods.getIntervalsUtc = function (isPrevious) {
+    return ShiftModule.getDateUtc(this, isPrevious);
+}
 
 const Shift = model<IShift>('Shift', ShiftSchema);
 

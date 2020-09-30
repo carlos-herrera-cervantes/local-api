@@ -2,7 +2,7 @@
 
 import { StatusCodes } from '../Constants/StatusCodes';
 import { Response } from 'express';
-import { StringExtensions } from '../Extensions/StringExtensions';
+import '../Extensions/StringExtensions';
 import { Paginate } from './Paginate';
 
 class ResponseDto {
@@ -10,7 +10,7 @@ class ResponseDto {
     public static ok = (status: boolean, data: any, response: Response, query: any = {}, totalDocuments?: number): any => {
         const { paginate } = query;
         
-        if (StringExtensions.toBoolean(paginate)) {
+        if ((paginate || 'false').toBoolean()) {
             const paginate = Paginate.getPaginateObject(query, totalDocuments);
             return response.status(StatusCodes.Ok).send({ status, data, paginate });
         }

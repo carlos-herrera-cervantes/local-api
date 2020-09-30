@@ -15,6 +15,7 @@ import { patch } from '../Middlewares/Patch';
 import { collectMiddleware } from '../Middlewares/Collect';
 
 @ClassMiddleware(localizer.configureLanguages)
+@ClassMiddleware(authorize.authenticateUser)
 @Controller('api/v1/collects')
 class CollectController {
 
@@ -25,7 +26,6 @@ class CollectController {
     }
 
     @Get()
-    @Middleware(authorize.authenticateUser)
     @Middleware(validator.validateRole(Roles.Employee, Roles.StationAdmin, Roles.SuperAdmin))
     @Middleware(validator.validatePagination)
     @ErrorMiddleware
@@ -38,7 +38,6 @@ class CollectController {
     }
 
     @Get(':id')
-    @Middleware(authorize.authenticateUser)
     @Middleware(validator.validateRole(Roles.Employee, Roles.StationAdmin, Roles.SuperAdmin))
     @Middleware(validator.isValidObjectId)
     @Middleware(collectMiddleware.existsById)
@@ -50,8 +49,8 @@ class CollectController {
     }
 
     @Post()
-    @Middleware(authorize.authenticateUser)
     @Middleware(validator.validateRole(Roles.Employee, Roles.StationAdmin, Roles.SuperAdmin))
+    @Middleware(collectMiddleware.isValidQuantity)
     @ErrorMiddleware
     public async createAsync (request: Request, response: Response): Promise<any> {
         const { body } = request;
@@ -60,8 +59,7 @@ class CollectController {
     }
 
     @Patch(':id')
-    @Middleware(authorize.authenticateUser)
-    @Middleware(validator.validateRole(Roles.Employee, Roles.StationAdmin, Roles.SuperAdmin))
+    @Middleware(validator.validateRole(Roles.StationAdmin, Roles.SuperAdmin))
     @Middleware(validator.isValidObjectId)
     @Middleware(collectMiddleware.existsById)
     @Middleware(patch.updateDate)
@@ -73,8 +71,7 @@ class CollectController {
     }
 
     @Delete(':id')
-    @Middleware(authorize.authenticateUser)
-    @Middleware(validator.validateRole(Roles.Employee, Roles.StationAdmin, Roles.SuperAdmin))
+    @Middleware(validator.validateRole(Roles.StationAdmin, Roles.SuperAdmin))
     @Middleware(validator.isValidObjectId)
     @Middleware(collectMiddleware.existsById)
     @ErrorMiddleware

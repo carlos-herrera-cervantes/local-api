@@ -3,6 +3,7 @@
 import { Request, Response, NextFunction } from 'express';
 import { verify } from 'jsonwebtoken';
 import { ResponseDto } from '../Models/Response';
+import * as parameters from '../../parameters.json';
 
 class Authorize {
 
@@ -11,7 +12,7 @@ class Authorize {
 
     if (!authorization) return ResponseDto.unauthorize(false, response, 'InvalidPermissions');
 
-    const isValidToken = await verify(authorization.split(' ').pop(), process.env.SECRET_KEY);
+    const isValidToken = await verify(authorization.split(' ').pop(), parameters.jwt.secret);
     request.headers.userId = isValidToken.id;
     request.headers.role = isValidToken.role;
 

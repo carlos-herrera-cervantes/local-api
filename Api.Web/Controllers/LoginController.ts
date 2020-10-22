@@ -14,6 +14,7 @@ import { IToken } from '../../Api.Domain/Models/IToken';
 import { Token } from '../../Api.Domain/Models/Token';
 import { userMiddleware } from '../Middlewares/User';
 import { authorize } from '../Middlewares/Authorization';
+import * as parameters from '../../parameters.json';
 
 @ClassMiddleware(localizer.configureLanguages)
 @Controller('api/v1/users')
@@ -40,7 +41,7 @@ class LoginController {
       return ResponseDto.badRequest(false, response, 'InvalidCredentials');
     }
 
-    const token = sign({ email, id: user._id, role: user.role }, process.env.SECRET_KEY);
+    const token = sign({ email, id: user._id, role: user.role }, parameters.jwt.secret);
     const instance = new Token({ token, email, role: user.role, userId: user._id });
     await this._tokenRepository.createAsync(instance);
     return ResponseDto.ok(true, { token }, response);

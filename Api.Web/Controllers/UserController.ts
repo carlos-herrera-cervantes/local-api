@@ -14,6 +14,7 @@ import { ErrorMiddleware } from '../Decorators/ErrorMiddleware';
 import { patch } from '../Middlewares/Patch';
 import { userMiddleware } from '../Middlewares/User';
 import { hash } from 'bcrypt';
+import R from 'ramda';
 
 @ClassMiddleware(localizer.configureLanguages)
 @Controller('api/v1/users')
@@ -54,7 +55,6 @@ class UserController {
     @ErrorMiddleware
     public async createAsync (request: Request, response: Response): Promise<any> {
         const { body } = request;
-        body.password = await hash(body.password, 10);
         const result = await this._userRepository.createAsync(body);
         return ResponseDto.created(true, result, response);
     }
@@ -68,6 +68,11 @@ class UserController {
     @ErrorMiddleware
     public async updateByIdAsync (request: Request, response: Response): Promise<any> {
         const { params: { id }, body } = request;
+
+        if (R.hasIn('password', body)) {
+            body.password = await hash(body.password, 10);
+        }
+
         const result = await this._userRepository.updateByIdAsync(id, body);
         return ResponseDto.created(true, result, response);
     }

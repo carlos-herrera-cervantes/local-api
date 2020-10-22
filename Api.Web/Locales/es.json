@@ -28,5 +28,7 @@
 	"TakeQuantityCollect": "La cantidad a tomar es mayor de la que tiene el empleado.",
 	"data is not iterable": "data is not iterable",
 	"Cannot read property 'toBoolean' of undefined": "Cannot read property 'toBoolean' of undefined",
-	"selected.getIntervalsUtc is not a function": "selected.getIntervalsUtc is not a function"
+	"selected.getIntervalsUtc is not a function": "selected.getIntervalsUtc is not a function",
+	"Reference.set failed: First argument  contains an invalid key ($__) in property 'events.cloud-api.stations.5f8fad62319c68569e2a396a.users'.  Keys must be non-empty strings and can't contain \".\", \"#\", \"$\", \"/\", \"[\", or \"]\"": "Reference.set failed: First argument  contains an invalid key ($__) in property 'events.cloud-api.stations.5f8fad62319c68569e2a396a.users'.  Keys must be non-empty strings and can't contain \".\", \"#\", \"$\", \"/\", \"[\", or \"]\"",
+	"secretOrPrivateKey must have a value": "secretOrPrivateKey must have a value"
 }

@@ -4,6 +4,7 @@ import { Schema, model } from 'mongoose';
 import { IUser } from './IUser';
 import { Roles } from '../Constants/Roles';
 import { setTimestamps } from './Base';
+import { hash } from 'bcrypt';
 
 const UserSchema = new Schema({
     email: {
@@ -47,6 +48,12 @@ const UserSchema = new Schema({
 },
 {
     versionKey: false
+});
+
+UserSchema.pre('save', async function(next) {
+  const password = this['password'];
+  this['password'] = await hash(password, 10);
+  next();
 });
 
 const User = model<IUser>('User', UserSchema);

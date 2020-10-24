@@ -22,6 +22,8 @@
     "axios": "^0.20.0",
     "bcrypt": "^5.0.0",
     "express": "^4.17.1",
+    "firebase-admin": "^9.3.0",
+    "firebase-queue": "^1.6.1",
     "i18n": "^0.10.0",
     "inversify": "^5.0.1",
     "jsonwebtoken": "^8.5.1",

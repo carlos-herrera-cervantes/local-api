@@ -2,14 +2,15 @@
 
 import axios from 'axios';
 import R from 'ramda';
+import * as parameters from '../../parameters.json';
 
 class CloudService {
 
   public async createCustomerPurchase (shopping: any): Promise<any> {
     try {
-      if (R.equals(process.env.TOKEN_CLOUD_API, undefined)) await this.authenticate();
+      if (R.equals(parameters.cloudApi.host, undefined)) await this.authenticate();
 
-      const response = await axios(process.env.HOST_CLOUD_API + '/customer-purchases', {
+      const response = await axios(parameters.cloudApi.host + '/customer-purchases', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -30,14 +31,14 @@ class CloudService {
   }
 
   private async authenticate (): Promise<any> {
-    const response = await axios(process.env.HOST_CLOUD_API + '/login', {
+    const response = await axios(parameters.cloudApi.host + '/login', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json'
       },
       data: {
-        email: process.env.USER_CLOUD_API,
-        password: process.env.PASS_CLOUD_API
+        email: parameters.cloudApi.user,
+        password: parameters.cloudApi.password
       }
     });
 

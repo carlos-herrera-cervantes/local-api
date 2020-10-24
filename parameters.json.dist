@@ -1,0 +1,23 @@
+{
+  "db": {
+    "host": "localhost",
+    "database": "local-api"
+  },
+  "app": {
+    "port": 3000,
+    "stationId": "<PUT HERE THE ID OF STATION CORRESPOND WITH THIS APP>"
+  },
+  "jwt": {
+    "secret": "<PUT HERE YOUR SECRET STRING>"
+  },
+  "cloudApi": {
+    "host": "<PUT HERE THE HOST OF CLOUD API>",
+    "user": "<PUT HERE THE USER TO AUTHENTICATE IN THE CLOUD API>",
+    "password": "<PUT HERE THE PASSWORD OF THAT USER>"
+  },
+  "firebase": {
+    "credentials": "<REPLACE THIS STRING WITH THE OBJECT WITH CREDENTIALS THAT IS GENERATED IN THE ACCOUNT SERVICE OF FIREBASE>",
+    "databaseURL": "<PUT HERE THE URL OF YOUR REAL TIME DATABASE>",
+    "pathTasks": "events/cloud-api"
+  }
+}

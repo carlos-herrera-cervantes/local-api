@@ -1,6 +1,9 @@
 'use strict';
 
 import 'reflect-metadata';
+import * as admin from 'firebase-admin';
+import * as parameters from '../../parameters.json';
+import R from 'ramda';
 import { Container } from 'inversify';
 import IDENTIFIERS from '../Constants/Identifiers';
 import { IRepository } from '../../Api.Repository/Repositories/IRepository';
@@ -41,6 +44,9 @@ import { ProductRepository } from '../../Api.Repository/Repositories/ProductRepo
 import { IPaymentMethod } from '../../Api.Domain/Models/IPaymentMethod';
 import { PaymentMethodRepository } from '../../Api.Repository/Repositories/PaymentMethodRepository';
 
+import { IStation } from '../../Api.Domain/Models/IStation';
+import { StationRepository } from '../../Api.Repository/Repositories/StationRepository';
+
 let container = new Container();
 
 container.bind<IRepository<IUser>>(IDENTIFIERS.IUserRepository).to(UserRepository);
@@ -55,6 +61,7 @@ container.bind<IRepository<IShopping>>(IDENTIFIERS.IShoppingRepository).to(Shopp
 container.bind<IRepository<IToken>>(IDENTIFIERS.ITokenRepository).to(TokenRepository);
 container.bind<IRepository<IProduct>>(IDENTIFIERS.IProductRepository).to(ProductRepository);
 container.bind<IRepository<IPaymentMethod>>(IDENTIFIERS.IPaymentMethodRepository).to(PaymentMethodRepository);
+container.bind<IRepository<IStation>>(IDENTIFIERS.IStationRepository).to(StationRepository);
 
 const resolveRepositories = () => (
   {
@@ -69,8 +76,30 @@ const resolveRepositories = () => (
     shoppingRepository: container.get<IRepository<IShopping>>(IDENTIFIERS.IShoppingRepository),
     tokenRepository: container.get<IRepository<IToken>>(IDENTIFIERS.ITokenRepository),
     productRepository: container.get<IRepository<IProduct>>(IDENTIFIERS.IProductRepository),
-    paymentMethodRepository: container.get<IRepository<IPaymentMethod>>(IDENTIFIERS.IPaymentMethodRepository)
+    paymentMethodRepository: container.get<IRepository<IPaymentMethod>>(IDENTIFIERS.IPaymentMethodRepository),
+    stationRepository: container.get<IRepository<IStation>>(IDENTIFIERS.IStationRepository)
   }
 );
 
-export { resolveRepositories };
+const initializeFirebaseApp = () => {
+  const emptyApps = R.not(admin.apps.length);
+
+  if (emptyApps) {
+    admin.initializeApp(
+      {
+        credential: admin.credential.cert({
+          projectId: parameters.firebase.credentials.project_id,
+          privateKey: parameters.firebase.credentials.private_key,
+          clientEmail: parameters.firebase.credentials.client_email
+        }),
+        databaseURL: parameters.firebase.databaseURL
+      }, 
+      'Synchronizer'
+    )
+  }
+
+  const database = admin.apps.pop().database();
+  return database;
+}
+
+export { resolveRepositories, initializeFirebaseApp };

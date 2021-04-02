@@ -13,10 +13,18 @@ import '@tsed/ajv';
 import '@tsed/swagger';
 import '@tsed/mongoose';
 import * as parameters from '../parameters.json';
+const redisStore = require('cache-manager-ioredis');
 
 export const rootDir = __dirname;
 
 @Configuration({
+  cache: {
+    ttl: 300,
+    store: redisStore,
+    host: 'localhost',
+    port: 6379,
+    db: 0
+  },
   rootDir,
   acceptMimes: ['application/json'],
   httpPort: parameters.app.port,

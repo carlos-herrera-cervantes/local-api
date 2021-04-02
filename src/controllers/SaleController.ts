@@ -1,3 +1,4 @@
+import * as admin from 'firebase-admin';
 import { 
   Controller,
   Get,
@@ -10,28 +11,12 @@ import {
   QueryParams,
   HeaderParams
 } from "@tsed/common";
-import { Summary, Status } from '@tsed/schema';
-import { ValidatorRole, ValidatorSaleExists } from '../decorators/ValidatorDecorator';
-import { AuthorizeMiddleware } from '../middlewares/AuthorizeMiddleware';
 import { 
   ValidatePaginationMiddleware,
   ValidateAssignmentShiftMiddleware,
   ValidateSaleClosedMiddleware,
   ValidateProductPayloadMiddleware
 } from '../middlewares/ValidatorMiddleware';
-import { Parameters } from '../models/Paramameters';
-import { Paginator } from '../models/Paginator';
-import { Sale } from '../models/Sale';
-import { SaleService } from '../services/SaleService';
-import { PaymentTransactionService } from '../services/PaymentTransactionService';
-import { CloudService } from '../services/CloudService';
-import { Filter } from '../models/Filter';
-import { Roles } from '../constants/Roles';
-import { JsonWebToken } from '../models/JsonWebToken';
-import { ShiftCommon } from '../common/ShiftCommon';
-import { ShiftService } from '../services/ShiftService';
-import { SaleCommon } from '../common/SaleCommon';
-import { PaymentTransaction } from '../models/PaymentTransaction';
 import { 
   listDataResponseExample,
   singleDataResponseExample,
@@ -39,13 +24,30 @@ import {
   internalServerError,
   saleObjectExample
 } from '../swagger/Examples';
-import * as parameters from '../../parameters.json';
-import { Credentials } from "../models/Credentials";
+import { Summary, Status } from '@tsed/schema';
+import { ValidatorRole, ValidatorSaleExists } from '../decorators/ValidatorDecorator';
+import { AuthorizeMiddleware } from '../middlewares/AuthorizeMiddleware';
+import { Parameters } from '../models/Paramameters';
+import { Paginator } from '../models/Paginator';
+import { Sale } from '../models/Sale';
+import { SaleService } from '../services/SaleService';
+import { PaymentTransactionService } from '../services/PaymentTransactionService';
+import { FirebaseService } from '../services/FirebaseService';
+import { Filter } from '../models/Filter';
+import { User } from '../models/User';
+import { Roles } from '../constants/Roles';
+import { JsonWebToken } from '../models/JsonWebToken';
+import { ShiftCommon } from '../common/ShiftCommon';
+import { ShiftService } from '../services/ShiftService';
+import { SaleCommon } from '../common/SaleCommon';
+import { PaymentTransaction } from '../models/PaymentTransaction';
 
 @Controller('/sales')
 @UseBefore(AuthorizeMiddleware)
 @UseBefore(ValidateAssignmentShiftMiddleware)
 export class SaleController {
+
+  private readonly firebaseDatabase: admin.database.Database;
 
   constructor(
     private readonly saleService: SaleService,
@@ -53,8 +55,37 @@ export class SaleController {
     private readonly shiftCommon: ShiftCommon,
     private readonly shiftService: ShiftService,
     private readonly saleCommon: SaleCommon,
-    private readonly cloudService: CloudService
-  ) { }
+    private readonly firebaseService: FirebaseService
+  ) {
+    this.firebaseDatabase = this.firebaseService.initializeFirebaseApp();
+  }
+
+  @Get('/me')
+  @Summary('Return a list of sales for specific user in session')
+  @(Status(200).Description('Success'))
+    .ContentType('application/json')
+    .Examples([ listDataResponseExample([ saleObjectExample ]) ])
+  @(Status(500).Description('Internal Server Error'))
+    .ContentType('application/json')
+    .Examples([ internalServerError ])
+  @ValidatorRole(Roles.SuperAdmin, Roles.StationAdmin)
+  async getAllMeAsync(@QueryParams() queryParams: Parameters, @HeaderParams() headers: object): Promise<Paginator<Sale>> {
+    const { _id } = JsonWebToken.Deconstruct(JsonWebToken.extractToken(headers)) as User;
+    const filter = new Filter(queryParams)
+      .setCriteria()
+      .setPagination()
+      .setSort()
+      .setRelation()
+      .build();
+
+    filter.criteria.user = _id;
+    const [sales, totalDocs] = await Promise.all([
+      this.saleService.getAllAsync(filter),
+      this.saleService.countDocuments(filter)
+    ]);
+
+    return new Paginator<Sale>(sales, queryParams, totalDocs).pager();
+  }
 
   @Get()
   @Summary('Return a list of sales')
@@ -64,8 +95,7 @@ export class SaleController {
   @(Status(500).Description('Internal Server Error'))
     .ContentType('application/json')
     .Examples([ internalServerError ])
-  @ValidatorRole(Roles.Employee, Roles.SuperAdmin, Roles.StationAdmin)
-  @UseBefore(ValidatePaginationMiddleware)
+  @ValidatorRole(Roles.SuperAdmin, Roles.StationAdmin)
   async getAllAsync(@QueryParams() queryParams: Parameters): Promise<Paginator<Sale>> {
     const filter = new Filter(queryParams)
       .setCriteria()
@@ -93,7 +123,7 @@ export class SaleController {
   @(Status(500).Description('Internal Server Error'))
     .ContentType('application/json')
     .Examples([ internalServerError ])
-  @ValidatorRole(Roles.Employee, Roles.SuperAdmin, Roles.StationAdmin)
+  @ValidatorRole(Roles.SuperAdmin, Roles.StationAdmin)
   @ValidatorSaleExists('_id')
   async getByIdAsync(@PathParams('id') id: string, @QueryParams() queryParams: Parameters): Promise<Sale> {
     const filter = new Filter(queryParams).setRelation().build();
@@ -110,27 +140,35 @@ export class SaleController {
     .Examples([ internalServerError ])
   @ValidatorRole(Roles.Employee, Roles.SuperAdmin, Roles.StationAdmin)
   @UseBefore(ValidatePaginationMiddleware)
-  async getByUserId(@HeaderParams() headers: object, @PathParams('id') id: string): Promise<Sale[]> {
+  async getByUserId(
+    @HeaderParams() headers: object,
+    @PathParams('id') id: string,
+    @QueryParams() queryParams: Parameters
+  ): Promise<Paginator<Sale>> {
     const { id: userId } = JsonWebToken.Deconstruct(JsonWebToken.extractToken(headers));
     
     const shifts = await this.shiftService.getAllAsync();
     const currentShift = this.shiftCommon.getCurrent(shifts);
     const { start, end } = this.shiftCommon.parseDateUTC(currentShift);
+    const filter = new Filter(queryParams).setPagination().build();
+    filter.criteria = {
+      createdAt: {
+        $gte: start,
+        $lte: end
+      },
+      user: userId,
+      status: {
+        $in: ['202', '203', '200']
+      },
+      position: id
+    };
 
-    return await this.saleService.getAllAsync(
-      {
-        criteria: {
-          createdAt: {
-            $gte: start,
-            $lte: end
-          },
-          user: userId,
-          status: {
-            $in: ['202', '203', '200']
-          },
-          position: id
-        }
-      });
+    const [sales, totalDocs] = await Promise.all([
+      this.saleService.getAllAsync(filter),
+      this.saleService.countDocuments(filter)
+    ]);
+
+    return new Paginator<Sale>(sales, queryParams, totalDocs).pager();
   }
 
   @Post()
@@ -144,7 +182,7 @@ export class SaleController {
   @(Status(500).Description('Internal Server Error'))
     .ContentType('application/json')
     .Examples([ internalServerError ])
-  @ValidatorRole(Roles.Employee, Roles.SuperAdmin, Roles.StationAdmin)
+  @ValidatorRole(Roles.SuperAdmin, Roles.StationAdmin)
   async createAsync(@BodyParams() sale: Sale): Promise<Sale> {
     return await this.saleService.createAsync(sale);
   }
@@ -254,21 +292,10 @@ export class SaleController {
 
     sale.status = '201';
 
-    const credentials = { 
-      email: parameters.cloudApi.user, 
-      password: parameters.cloudApi.password 
-    } as Credentials;
+    const saleForCloud = await this.saleCommon.createStructureToSendCloud(id);
+    await this.firebaseService.insertChildAsync(this.firebaseDatabase, `events/local/sales/${sale._id}`, saleForCloud);
 
-    const [ saleForCloud, token ] = await Promise.all([
-      await this.saleCommon.createStructureToSendCloud(id),
-      await this.cloudService.authenticateAsync(parameters.cloudApi.host + '/auth/login', credentials)
-    ]);
-
-    await this.cloudService.createSaleAsync(
-      parameters.cloudApi.host + '/customer-purchases',
-      saleForCloud,
-      token as string
-    ) == true ? sale.sendToCloud = true : false;
+    sale.sendToCloud = true;
 
     await Promise.all([
       this.saleCommon.chargeMoneyToUser(userId, saleForCloud),

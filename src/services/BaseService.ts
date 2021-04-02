@@ -19,8 +19,7 @@ export class BaseService {
    * @returns List of documents
    */
   async getAllAsync(filter?: any): Promise<any[]> {
-    return await this.repository
-      .find(R.pathOr({}, ['criteria'], filter))
+    return await this.lookup({ model: this.repository, filter })
       .skip(R.pathOr(0, ['page'], filter))
       .limit(R.pathOr(0, ['pageSize'], filter))
       .sort(R.pathOr({}, ['sort'], filter));
@@ -33,16 +32,16 @@ export class BaseService {
    * @returns Document
    */
   async getByIdAsync(id: string, filter?: any): Promise<any> {
-    return await this.repository.findOne({ _id: id });
+    return await this.lookup({ model: this.repository, filter, operation: 'findById', id });
   }
 
   /**
    * Returns one document by specific filter
-   * @param criteria Object with specific fields to filter
+   * @param filter Object with specific fields to filter
    * @returns Document
    */
-   async getOneAsync(criteria: object): Promise<any> {
-    return await this.repository.findOne(criteria);
+   async getOneAsync(filter: any = {}): Promise<any> {
+    return await this.lookup({ model: this.repository, filter, operation: 'findOne' });
   }
 
   /**
@@ -101,11 +100,11 @@ export class BaseService {
    * @returns Operation hook
    */
    private lookup({ model, filter, operation, id }: IlookupParameters): any {
-    const instance = R.equals(operation, 'findById') ?
+    const instance = operation == 'findById' ?
       model.findById(id) :
-      R.equals(operation, 'findOne') ?
-        model.findOne(R.pathOr({}, ['criteria'], filter)) :
-        model.find(R.pathOr({}, ['criteria'], filter));
+      operation == 'findOne' ?
+        model.findOne(R.pathOr({}, ['criteria'], filter)).lean() :
+        model.find(R.pathOr({}, ['criteria'], filter)).lean();
 
     R.pathOr([], ['relation'], filter).forEach((relation: string) => {
       const splited = R.includes('.', relation) ? relation.split('.') : relation;

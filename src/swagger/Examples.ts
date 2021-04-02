@@ -153,6 +153,19 @@ export const taxObjectExample = {
   updatedAt: '2011-01-21T11:33:21Z'
 };
 
+/** @AppClient */
+
+export const appClientObjectExample = {
+  _id: '5f4312fea39146efe94eb0fb',
+  clientId: 'app.b2c',
+  clientSecret: 'app.b2c',
+  name: 'Client B2C',
+  type: 'App',
+  role: 'AppClientAdmin',
+  createdAt: '2011-01-21T11:33:21Z',
+  updatedAt: '2011-01-21T11:33:21Z'
+};
+
 /** @Common */
 
 export const listDataResponseExample = (data: object[]) => ({

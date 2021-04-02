@@ -39,16 +39,17 @@ export class SaleCommon {
     const sale = await this.saleService.getByIdAsync(id, relationFilter) as ISaleProjection;
 
     return {
+      _id: sale?._id?.toString(),
       folio: sale?.folio,
       iva: sale?.iva,
       subtotal: sale?.subtotal,
       total: sale?.total,
       totalLetters: sale?.totalLetters,
-      userId: sale?.user,
-      station: sale?.station,
+      userId: sale?.user?.toString(),
+      station: sale?.station?.toString(),
       products: sale?.products?.map((product: IProductProjection) => {
         return {
-          _id: product?.product?._id,
+          _id: product?.product?._id?.toString(),
           name: product?.product?.name,
           description: product?.product?.description,
           quantity: product?.quantity,
@@ -60,7 +61,7 @@ export class SaleCommon {
             return {
               percentage: tax?.percentage,
               name: tax?.name,
-              _id: tax?._id
+              _id: tax?._id?.toString()
             }
           }),
         }
@@ -70,12 +71,12 @@ export class SaleCommon {
           quantity: sale?.paymentTransaction?.quantity,
           key: sale?.paymentTransaction?.paymentMethod?.key,
           description: sale?.paymentTransaction?.paymentMethod?.description,
-          _id: sale?.paymentTransaction?.paymentMethod?._id
+          _id: sale?.paymentTransaction?.paymentMethod?._id?.toString()
         }
       ],
       client: {
         email: sale?.client?.email,
-        _id: sale?.client?._id
+        _id: sale?.client?._id?.toString()
       }
     };
   }

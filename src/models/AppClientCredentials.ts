@@ -1,13 +1,13 @@
 import { Property, Required } from "@tsed/schema";
 
-export class Credentials {
+export class AppClientCredentials {
 
   @Property()
   @Required()
-  email: string;
+  clientId: string;
 
   @Property()
   @Required()
-  password: string;
+  clientSecret: string;
 
 }

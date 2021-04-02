@@ -30,4 +30,15 @@ export class FirebaseService {
     return admin.apps.pop()!.database();
   }
 
+  /**
+   * Inserts a new child in the database
+   * @param {Database} database Firebase database
+   * @param {String} ref Path to insert the node
+   * @param {Object} node
+   * @returns Firebase response
+   */
+  async insertChildAsync(database: admin.database.Database, ref: string, node: any): Promise<any> {
+    return await database.ref(ref).set(node);
+  }
+
 }

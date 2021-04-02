@@ -6,13 +6,17 @@ import { Base } from './Base';
 
 @Model()
 @PreHook('save', async (user: User, next: any) => {
-  const password = user.password;
-  user.password = await hash(password, 10);
+  if (user.password) {
+    const password = user.password;
+    user.password = await hash(password, 10);
+  }
   next();
 })
 @PreHook('findOneAndUpdate', async (user: User, next: any) => {
-  const password = user.password;
-  user.password = await hash(password, 10);
+  if (user.password) {
+    const password = user.password;
+    user.password = await hash(password, 10);
+  }
   user.updatedAt = new Date();
   next();
 })

@@ -2,8 +2,7 @@ import { Controller, Get, Post, Patch, Delete, BodyParams, PathParams, UseBefore
 import { Summary, Status } from '@tsed/schema';
 import { ValidatorRole, ValidatorPositionExists, ValidatorClientExists } from '../decorators/ValidatorDecorator';
 import { AuthorizeMiddleware } from '../middlewares/AuthorizeMiddleware';
-import { ValidatePaginationMiddleware } from '../middlewares/ValidatorMiddleware';
-import { ErrorMiddleware } from '../middlewares/ErrorMiddleware';
+import { ValidateAssignmentShiftMiddleware, ValidatePaginationMiddleware } from '../middlewares/ValidatorMiddleware';
 import { PositionService } from '../services/PositionService';
 import { SaleService } from '../services/SaleService';
 import { SaleCommon } from '../common/SaleCommon';
@@ -24,7 +23,7 @@ import {
 
 @Controller('/positions')
 @UseBefore(AuthorizeMiddleware)
-@UseBefore(ErrorMiddleware)
+@UseBefore(ValidateAssignmentShiftMiddleware)
 export class PositionController {
 
   constructor(

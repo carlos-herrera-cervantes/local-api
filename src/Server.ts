@@ -32,12 +32,25 @@ export const rootDir = __dirname;
   },
   swagger: [
     {
-      path: '/v2/docs',
-      specVersion: '2.0'
-    },
-    {
-      path: '/v3/docs',
-      specVersion: '3.0.1'
+      path: '/docs',
+      specVersion: '3.0.1',
+      spec: {
+        info: {
+          title: "Local API",
+          version: '1.0.0',
+          description: "Swagger 3.0.1 API specification. This API spec can be used for integrating your application project into non-HTML5 programs like `native` phone apps, `legacy` and `enterprise` systems, embedded `Internet of Things` applications (IoT), and other programming languages.  Note: The URL's below are configured for your specific project and form.",
+        },
+        components: {
+          securitySchemes: {
+            jwt: {
+              type: "http",
+              scheme: "bearer",
+              bearerFormat: "JWT",
+              description: "Run a sign-in on /api/v1/login to get a valid Access Token."
+            }
+          }
+        }
+      }
     }
   ],
   views: {

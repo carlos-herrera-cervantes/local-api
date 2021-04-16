@@ -1,5 +1,6 @@
 import { UseBefore } from '@tsed/common';
 import { StoreSet, useDecorators } from '@tsed/core';
+import {Security} from "@tsed/schema";
 import { 
   ValidateRoleMiddleware,
   ValidateUserExistsMiddleware,
@@ -21,6 +22,7 @@ import {
  */
 export function ValidatorRole(...roles: string[]) {
   return useDecorators(
+    Security("jwt"),
     StoreSet(ValidateRoleMiddleware, {
       roles
     }),

@@ -1,6 +1,6 @@
-import { MongooseModel } from "@tsed/mongoose";
-import { Model } from 'mongoose';
-import * as R from 'ramda';
+import {MongooseModel} from "@tsed/mongoose";
+import {Model} from "mongoose";
+import * as R from "ramda";
 
 interface IlookupParameters {
   model: Model<any>,
@@ -10,8 +10,8 @@ interface IlookupParameters {
 }
 
 export class BaseService {
-
-  constructor(protected repository: MongooseModel<any>) {}
+  constructor(protected repository: MongooseModel<any>) {
+  }
 
   /**
    * Returns a list of all documents
@@ -20,10 +20,10 @@ export class BaseService {
    */
   async getAllAsync(filter?: any): Promise<any[]> {
     return await this.repository
-      .find(R.pathOr({}, ['criteria'], filter))
-      .skip(R.pathOr(0, ['page'], filter))
-      .limit(R.pathOr(0, ['pageSize'], filter))
-      .sort(R.pathOr({}, ['sort'], filter));
+      .find(R.pathOr({}, ["criteria"], filter))
+      .skip(R.pathOr(0, ["page"], filter))
+      .limit(R.pathOr(0, ["pageSize"], filter))
+      .sort(R.pathOr({}, ["sort"], filter));
   }
 
   /**
@@ -33,7 +33,7 @@ export class BaseService {
    * @returns Document
    */
   async getByIdAsync(id: string, filter?: any): Promise<any> {
-    return await this.repository.findOne({ _id: id });
+    return await this.repository.findOne({_id: id});
   }
 
   /**
@@ -41,7 +41,7 @@ export class BaseService {
    * @param criteria Object with specific fields to filter
    * @returns Document
    */
-   async getOneAsync(criteria: object): Promise<any> {
+  async getOneAsync(criteria?: object): Promise<any> {
     return await this.repository.findOne(criteria);
   }
 
@@ -50,7 +50,7 @@ export class BaseService {
    * @param doc Mongoose document
    * @returns Document
    */
-   async createAsync(doc: any): Promise<any> {
+  async createAsync(doc: any): Promise<any> {
     return await this.repository.create(doc);
   }
 
@@ -59,7 +59,7 @@ export class BaseService {
    * @param doc Object to save
    * @returns Document
    */
-   async saveAsync(doc: any): Promise<any> {
+  async saveAsync(doc: any): Promise<any> {
     const saved = new this.repository(doc);
     return saved.save();
   }
@@ -70,8 +70,8 @@ export class BaseService {
    * @param doc Document object to update
    * @returns Document
    */
-   async updateOneByIdAsync(id: string, doc: any): Promise<any> {
-    return await this.repository.findOneAndUpdate({ _id: id }, { $set: doc }, { new: true });
+  async updateOneByIdAsync(id: string, doc: any): Promise<any> {
+    return await this.repository.findOneAndUpdate({_id: id}, {$set: doc}, {new: true});
   }
 
   /**
@@ -79,8 +79,8 @@ export class BaseService {
    * @param id Document ID
    * @returns Cursor
    */
-   async deleteOneByIdAsync(id: string): Promise<any> {
-    return await this.repository.findOneAndDelete({ _id: id });
+  async deleteOneByIdAsync(id: string): Promise<any> {
+    return await this.repository.findOneAndDelete({_id: id});
   }
 
   /**
@@ -88,8 +88,8 @@ export class BaseService {
    * @param filter Object with specific fields to filter
    * @returns The total of documents
    */
-   async countDocuments(filter?: any): Promise<number> {
-    return await this.repository.countDocuments(R.pathOr({}, ['criteria'], filter));
+  async countDocuments(filter?: any): Promise<number> {
+    return await this.repository.countDocuments(R.pathOr({}, ["criteria"], filter));
   }
 
   /**
@@ -100,15 +100,15 @@ export class BaseService {
    * @param id Object ID
    * @returns Operation hook
    */
-   private lookup({ model, filter, operation, id }: IlookupParameters): any {
-    const instance = R.equals(operation, 'findById') ?
+  private lookup({model, filter, operation, id}: IlookupParameters): any {
+    const instance = R.equals(operation, "findById") ?
       model.findById(id) :
-      R.equals(operation, 'findOne') ?
-        model.findOne(R.pathOr({}, ['criteria'], filter)) :
-        model.find(R.pathOr({}, ['criteria'], filter));
+      R.equals(operation, "findOne") ?
+        model.findOne(R.pathOr({}, ["criteria"], filter)) :
+        model.find(R.pathOr({}, ["criteria"], filter));
 
-    R.pathOr([], ['relation'], filter).forEach((relation: string) => {
-      const splited = R.includes('.', relation) ? relation.split('.') : relation;
+    R.pathOr([], ["relation"], filter).forEach((relation: string) => {
+      const splited = R.includes(".", relation) ? relation.split(".") : relation;
       const filter = this.getStringQuery(splited);
       instance.populate(filter);
     });
@@ -123,18 +123,20 @@ export class BaseService {
    */
   private getStringQuery(entities: any): any {
     switch (entities.length) {
-      case 2: return {
-        path: R.includes('->', R.head(entities)) ? R.head(entities).replace('->', '.') : R.head(entities),
-        populate: entities[1]
-      };
+      case 2:
+        return {
+          path: R.includes("->", R.head(entities)) ? R.head(entities).replace("->", ".") : R.head(entities),
+          populate: entities[1]
+        };
 
-      case 3: return {
-        path: R.includes('->', R.head(entities)) ? R.head(entities).replace('->', '.') : R.head(entities),
-        populate: `${entities[1]} ${entities[2]}`
-      };
+      case 3:
+        return {
+          path: R.includes("->", R.head(entities)) ? R.head(entities).replace("->", ".") : R.head(entities),
+          populate: `${entities[1]} ${entities[2]}`
+        };
 
-      default: return R.includes('->', entities) ? entities.replace('->', '.') : entities;
+      default:
+        return R.includes("->", entities) ? entities.replace("->", ".") : entities;
     }
   }
-
 }

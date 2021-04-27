@@ -19,10 +19,10 @@ export class Customer {
   @Prop({ default: Gender.Not_Specified, enum: Gender })
   gender: string;
 
-  @Prop({ default: new Date() })
+  @Prop({ default: new Date().toUTCString() })
   createdAt: Date;
 
-  @Prop({ default: new Date() })
+  @Prop({ default: new Date().toUTCString() })
   updateAt: Date;
 
 }

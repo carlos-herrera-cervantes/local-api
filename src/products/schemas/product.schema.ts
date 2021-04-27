@@ -26,10 +26,10 @@ export class Product {
   @Prop({ type: MongooseSchema.Types.ObjectId, ref: 'MeasurementUnit' })
   measurementUnit: MeasurementUnit;
 
-  @Prop({ default: new Date() })
+  @Prop({ default: new Date().toUTCString() })
   createdAt: Date;
 
-  @Prop({ default: new Date() })
+  @Prop({ default: new Date().toUTCString() })
   updateAt: Date;
 
 }

@@ -25,7 +25,7 @@ export class FirebaseService implements OnModuleInit {
    * Initializes a new Firebase client
    * @returns Firebase client
    */
-  private initializeApp(): admin.database.Database {
+  initializeApp(): admin.database.Database {
     const isEmptyApps = !admin.apps.length;
 
     if (isEmptyApps) {
@@ -40,6 +40,27 @@ export class FirebaseService implements OnModuleInit {
     }
 
     return admin.apps.pop()?.database();
+  }
+
+  /**
+   * Inserts a node into the provided path
+   * @param {String} path
+   * @param {Object} node Object
+   * @param {admin.database.Database} database Firebase database
+   * @returns If successful it returns true otherwise false
+   */
+  async tryInsertChildAsync(
+    path: string,
+    node: any,
+    database: admin.database.Database
+  ): Promise<boolean> {
+    try {
+      await database.ref(path).set(node);
+      return true;
+    }
+    catch (err) {
+      return false;
+    }
   }
 
   /**

@@ -40,10 +40,10 @@ export class Shift {
   @Prop({ default: [], type: [{ type: MongooseSchema.Types.ObjectId, ref: 'User' }] })
   sunday: User[];
 
-  @Prop({ default: new Date() })
+  @Prop({ default: new Date().toUTCString() })
   createdAt: Date;
 
-  @Prop({ default: new Date() })
+  @Prop({ default: new Date().toUTCString() })
   updateAt: Date;
 
 }

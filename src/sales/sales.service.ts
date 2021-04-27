@@ -43,16 +43,17 @@ export class SalesService extends BaseService {
     const sale = await super.getByIdAsync(id, filter) as any;
 
     return {
+      _id: sale?._id?.toString(),
       folio: sale?.folio,
-      iva: sale?.iva,
+      vat: sale?.vat,
       subtotal: sale?.subtotal,
       total: sale?.total,
       totalLetters: sale?.totalLetters,
-      userId: sale?.user,
-      station: sale?.station,
+      userId: sale?.user?.toString(),
+      station: sale?.station?.toString(),
       products: sale?.products?.map((product: any) => {
         return {
-          _id: product?.product?._id,
+          _id: product?.product?._id?.toString(),
           name: product?.product?.name,
           description: product?.product?.description,
           quantity: product?.quantity,
@@ -64,7 +65,7 @@ export class SalesService extends BaseService {
             return {
               percentage: tax?.percentage,
               name: tax?.name,
-              _id: tax?._id
+              _id: tax?._id?.toString()
             }
           }),
         }
@@ -74,12 +75,12 @@ export class SalesService extends BaseService {
           quantity: sale?.paymentTransaction?.quantity,
           key: sale?.paymentTransaction?.paymentMethod?.key,
           description: sale?.paymentTransaction?.paymentMethod?.description,
-          _id: sale?.paymentTransaction?.paymentMethod?._id
+          _id: sale?.paymentTransaction?.paymentMethod?._id?.toString()
         }
       ],
       client: {
         email: sale?.customer?.email,
-        _id: sale?.customer?._id
+        _id: sale?.customer?._id?.toString()
       }
     };
   }

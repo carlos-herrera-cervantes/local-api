@@ -16,6 +16,7 @@ import { ShiftsService } from '../shifts/shifts.service';
 import { AuthService } from '../auth/auth.service';
 import { DateService } from '../dates/dates.service';
 import { PaymentTransactionService } from '../paymentTransactions/paymentTransactions.service';
+import { FirebaseService } from '../firebase/firebase.service';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { AssignShiftGuard } from '../shifts/guards/assign-shift.guard';
 import { CalculateTotalGuard } from './guards/calculate-total.guard';
@@ -23,10 +24,15 @@ import { PayGuard } from './guards/pay.guard';
 import { CloseGuard } from './guards/close.guard';
 import { AddProductGuard } from './guards/add-product.guard';
 import { ExistsSaleGuard } from './guards/exists-sale.guard';
+import { ExistsPositionGuard } from '../positions/guards/exists-position.guard';
+import { ExistsPaymentGuard } from '../paymentMethods/guards/exists-payment.guard';
 import { Roles } from '../auth/roles.decorator';
 import { Role } from '../base/enums/role.enum';
 import { IMongoDBFilter } from '../base/entities/mongodb-filter.entity';
+import { MongoDBFilter } from '../base/entities/mongodb-filter.entity';
+import { CustomQueryParams, QueryParams } from '../base/entities/query-params.entity';
 import { PaymentTransaction } from '../paymentTransactions/schemas/paymentTransaction.schema';
+import { Paginator, IPaginatorData } from '../base/entities/paginator.entity';
 
 @UseGuards(JwtAuthGuard)
 @UseGuards(AssignShiftGuard)
@@ -38,13 +44,26 @@ export class SalesController {
     private shiftsService: ShiftsService,
     private authService: AuthService,
     private dateService: DateService,
-    private paymentTransactionService: PaymentTransactionService
+    private paymentTransactionService: PaymentTransactionService,
+    private firebaseService: FirebaseService
   ) {}
 
   @Get()
   @Roles(Role.SuperAdmin, Role.StationAdmin)
-  async getAllAsync(): Promise<Sale[]> {
-    return await this.salesService.getAllAsync();
+  async getAllAsync(@CustomQueryParams() params: QueryParams): Promise<IPaginatorData<Sale>> {
+    const filter = new MongoDBFilter(params)
+      .setCriteria()
+      .setPagination()
+      .setRelation()
+      .setSort()
+      .build();
+
+    const [sales, totalDocs] = await Promise.all([
+      this.salesService.getAllAsync(filter),
+      this.salesService.coundDocsAsync(filter)
+    ]);
+    
+    return new Paginator<Sale>(sales, params, totalDocs).getPaginator();
   }
 
   @Get(':id')
@@ -56,10 +75,12 @@ export class SalesController {
 
   @Get('positions/:id')
   @Roles(Role.SuperAdmin, Role.StationAdmin, Role.Employee)
+  @UseGuards(ExistsPositionGuard)
   async getByUserId(
     @Headers('authorization') authorization : string,
     @Param('id') id: string,
-  ): Promise<Sale> {
+    @CustomQueryParams() params: QueryParams
+  ): Promise<IPaginatorData<Sale>> {
     const token = authorization?.split(' ').pop();
     const { sub } = await this.authService.getPayload(token);
 
@@ -83,7 +104,12 @@ export class SalesController {
       }
     } as IMongoDBFilter;
 
-    return await this.salesService.getAllAsync(filter);
+    const [sales, totalDocs] = await Promise.all([
+      this.salesService.getAllAsync(filter),
+      this.salesService.coundDocsAsync(filter)
+    ]);
+
+    return new Paginator<Sale>(sales, params, totalDocs).getPaginator();
   }
 
   @Patch(':id')
@@ -115,6 +141,7 @@ export class SalesController {
   @Roles(Role.SuperAdmin, Role.StationAdmin, Role.Employee)
   @UseGuards(ExistsSaleGuard)
   @UseGuards(PayGuard)
+  @UseGuards(ExistsPaymentGuard)
   async payAsync(
     @Param('id') id: string,
     @Body('paymentMethodId') paymentMethodId: any
@@ -147,7 +174,14 @@ export class SalesController {
       this.salesService.getByIdAsync(id),
       this.salesService.createCloudStructure(id)
     ]);
+    const cloud = await this.firebaseService.tryInsertChildAsync(
+      `events/local/sales/${id}`,
+      saleCloud,
+      this.firebaseService.initializeApp()
+    );
+
     sale.status = '201';
+    cloud ? sale.sendToCloud = true : sale.sendToCloud = false;
 
     await Promise.all([
       this.salesService.chargeMoneyToUser(sub, saleCloud),

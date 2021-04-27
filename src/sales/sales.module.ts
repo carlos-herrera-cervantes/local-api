@@ -11,6 +11,9 @@ import { ShiftsModule } from '../shifts/shifts.module';
 import { AuthModule } from '../auth/auth.module';
 import { DatesModule } from '../dates/dates.module';
 import { PaymentTransactionModule } from '../paymentTransactions/paymentTransactions.module';
+import { FirebaseModule } from '../firebase/firebase.module';
+import { PositionsModule } from '../positions/positions.module';
+import { PaymentMethodModule } from '../paymentMethods/paymentMethods.module';
 
 @Module({
   imports: [
@@ -22,7 +25,10 @@ import { PaymentTransactionModule } from '../paymentTransactions/paymentTransact
     forwardRef(() => ShiftsModule),
     AuthModule,
     DatesModule,
-    PaymentTransactionModule
+    PaymentTransactionModule,
+    FirebaseModule,
+    forwardRef(() => PositionsModule),
+    PaymentMethodModule
   ],
   controllers: [SalesController],
   providers: [SalesService],

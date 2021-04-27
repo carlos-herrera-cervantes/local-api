@@ -15,10 +15,10 @@ export class Position {
   @Prop({ required: true, unique: true })
   number: number;
 
-  @Prop({ default: new Date() })
+  @Prop({ default: new Date().toUTCString() })
   createdAt: Date;
 
-  @Prop({ default: new Date() })
+  @Prop({ default: new Date().toUTCString() })
   updateAt: Date;
 
 }

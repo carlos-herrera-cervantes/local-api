@@ -42,10 +42,10 @@ export class PaymentTransaction {
   @Prop({ required: true, type: MongooseSchema.Types.ObjectId, ref: 'PaymentMethod' })
   paymentMethod: PaymentMethod;
 
-  @Prop({ default: new Date() })
+  @Prop({ default: new Date().toUTCString() })
   createdAt: Date;
 
-  @Prop({ default: new Date() })
+  @Prop({ default: new Date().toUTCString() })
   updateAt: Date;
 
 }

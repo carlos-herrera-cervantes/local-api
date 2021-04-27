@@ -23,6 +23,9 @@ import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { ExistsShiftGuard } from './guards/exists-shift.guard';
 import { Roles } from '../auth/roles.decorator';
 import { Role } from '../base/enums/role.enum';
+import { CustomQueryParams, QueryParams } from '../base/entities/query-params.entity';
+import { MongoDBFilter } from '../base/entities/mongodb-filter.entity';
+import { Paginator, IPaginatorData } from '../base/entities/paginator.entity';
 
 @UseGuards(JwtAuthGuard)
 @Controller('/api/v1/shifts')
@@ -38,8 +41,19 @@ export class ShiftsController {
 
   @Get()
   @Roles(Role.SuperAdmin, Role.StationAdmin)
-  async getAllAsync(): Promise<Shift[]> {
-    return await this.shiftsService.getAllAsync();
+  async getAllAsync(@CustomQueryParams() params: QueryParams): Promise<IPaginatorData<Shift>> {
+    const filter = new MongoDBFilter(params)
+      .setCriteria()
+      .setPagination()
+      .setSort()
+      .build();
+
+    const [shifts, totalDocs] = await Promise.all([
+      this.shiftsService.getAllAsync(filter),
+      this.shiftsService.coundDocsAsync(filter)
+    ]);
+  
+    return new Paginator<Shift>(shifts, params, totalDocs).getPaginator();
   }
 
   @Get('cut')

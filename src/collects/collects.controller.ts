@@ -16,6 +16,9 @@ import { CollectMoneyService } from './collects.service';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { Roles } from '../auth/roles.decorator';
 import { Role } from '../base/enums/role.enum';
+import { CustomQueryParams, QueryParams } from '../base/entities/query-params.entity';
+import { MongoDBFilter } from '../base/entities/mongodb-filter.entity';
+import { Paginator, IPaginatorData } from '../base/entities/paginator.entity';
 
 @UseGuards(JwtAuthGuard)
 @Controller('/api/v1/collects')
@@ -25,8 +28,19 @@ export class CollectsController {
 
   @Get()
   @Roles(Role.SuperAdmin, Role.StationAdmin)
-  async getAllAsync(): Promise<CollectMoney[]> {
-    return await this.collectsService.getAllAsync();
+  async getAllAsync(@CustomQueryParams() params: QueryParams): Promise<IPaginatorData<CollectMoney>> {
+    const filter = new MongoDBFilter(params)
+      .setCriteria()
+      .setPagination()
+      .setSort()
+      .build();
+
+    const [collects, totalDocs] = await Promise.all([
+      this.collectsService.getAllAsync(filter),
+      this.collectsService.coundDocsAsync(filter)
+    ]);
+
+    return new Paginator<CollectMoney>(collects, params, totalDocs).getPaginator();
   }
 
   @Get(':id')

@@ -17,6 +17,9 @@ import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { ExistsTaxGuard } from './guards/exists-tax.guard';
 import { Roles } from '../auth/roles.decorator';
 import { Role } from '../base/enums/role.enum';
+import { CustomQueryParams, QueryParams } from '../base/entities/query-params.entity';
+import { MongoDBFilter } from '../base/entities/mongodb-filter.entity';
+import { Paginator, IPaginatorData } from '../base/entities/paginator.entity';
 
 @UseGuards(JwtAuthGuard)
 @Controller('/api/v1/taxes')
@@ -26,8 +29,19 @@ export class TaxesController {
 
   @Get()
   @Roles(Role.SuperAdmin, Role.StationAdmin)
-  async getAllAsync(): Promise<Tax[]> {
-    return await this.taxesService.getAllAsync();
+  async getAllAsync(@CustomQueryParams() params: QueryParams): Promise<IPaginatorData<Tax>> {
+    const filter = new MongoDBFilter(params)
+      .setCriteria()
+      .setPagination()
+      .setSort()
+      .build();
+    
+    const [taxes, totalDocs] = await Promise.all([
+      this.taxesService.getAllAsync(filter),
+      this.taxesService.coundDocsAsync(filter)
+    ]);
+  
+    return new Paginator<Tax>(taxes, params, totalDocs).getPaginator();
   }
 
   @Get(':id')

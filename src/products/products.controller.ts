@@ -5,6 +5,9 @@ import { ProductsService } from './products.service';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { Roles } from '../auth/roles.decorator';
 import { Role } from '../base/enums/role.enum';
+import { CustomQueryParams, QueryParams } from '../base/entities/query-params.entity';
+import { MongoDBFilter } from '../base/entities/mongodb-filter.entity';
+import { Paginator, IPaginatorData } from '../base/entities/paginator.entity';
 
 @UseGuards(JwtAuthGuard)
 @Controller('/api/v1/products')
@@ -14,8 +17,19 @@ export class ProductsController {
 
   @Get()
   @Roles(Role.SuperAdmin, Role.StationAdmin, Role.Employee)
-  async getAllAsync(): Promise<Product[]> {
-    return await this.productsService.getAllAsync();
+  async getAllAsync(@CustomQueryParams() params: QueryParams): Promise<IPaginatorData<Product>> {
+    const filter = new MongoDBFilter(params)
+      .setCriteria()
+      .setPagination()
+      .setSort()
+      .build();
+
+    const [products, totalDocs] = await Promise.all([
+      this.productsService.getAllAsync(filter),
+      this.productsService.coundDocsAsync(filter)
+    ]);
+  
+    return new Paginator<Product>(products, params, totalDocs).getPaginator();
   }
 
   @Get(':id')

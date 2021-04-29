@@ -7,6 +7,9 @@ import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { ExistsMeasurementGuard } from './guards/exists-measurement.guard';
 import { Roles } from '../auth/roles.decorator';
 import { Role } from '../base/enums/role.enum';
+import { CustomQueryParams, QueryParams } from '../base/entities/query-params.entity';
+import { MongoDBFilter } from '../base/entities/mongodb-filter.entity';
+import { Paginator, IPaginatorData } from '../base/entities/paginator.entity';
 
 @UseGuards(JwtAuthGuard)
 @Controller('/api/v1/measurement-units')
@@ -16,8 +19,19 @@ export class MeasurementsController {
 
   @Get()
   @Roles(Role.SuperAdmin, Role.StationAdmin)
-  async getAllAsync(): Promise<MeasurementUnit[]> {
-    return await this.measurementsService.getAllAsync();
+  async getAllAsync(@CustomQueryParams() params: QueryParams): Promise<IPaginatorData<MeasurementUnit>> {
+    const filter = new MongoDBFilter(params)
+      .setCriteria()
+      .setPagination()
+      .setSort()
+      .build();
+
+    const [measurements, totalDocs] = await Promise.all([
+      this.measurementsService.getAllAsync(filter),
+      this.measurementsService.coundDocsAsync(filter)
+    ]);
+  
+    return new Paginator<MeasurementUnit>(measurements, params, totalDocs).getPaginator();
   }
 
   @Get(':id')

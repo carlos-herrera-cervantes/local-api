@@ -17,10 +17,10 @@ export class CollectMoney {
   @Prop({ required: true, default: TypeCollect.Cash, enum: TypeCollect })
   type: string;
 
-  @Prop({ default: new Date() })
+  @Prop({ default: new Date().toUTCString() })
   createdAt: Date;
 
-  @Prop({ default: new Date() })
+  @Prop({ default: new Date().toUTCString() })
   updateAt: Date;
 
 }

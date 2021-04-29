@@ -28,10 +28,10 @@ export class User {
   @Prop({ default: [ Role.Employee ] })
   roles: Role[];
 
-  @Prop({ default: new Date() })
+  @Prop({ default: new Date().toUTCString() })
   createdAt: Date;
 
-  @Prop({ default: new Date() })
+  @Prop({ default: new Date().toUTCString() })
   updateAt: Date;
 
 }

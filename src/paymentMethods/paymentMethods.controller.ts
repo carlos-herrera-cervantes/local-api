@@ -5,6 +5,9 @@ import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { ExistsPaymentGuard } from './guards/exists-payment.guard';
 import { Roles } from '../auth/roles.decorator';
 import { Role } from '../base/enums/role.enum';
+import { CustomQueryParams, QueryParams } from '../base/entities/query-params.entity';
+import { MongoDBFilter } from '../base/entities/mongodb-filter.entity';
+import { Paginator, IPaginatorData } from '../base/entities/paginator.entity';
 
 @UseGuards(JwtAuthGuard)
 @Controller('/api/v1/payment-methods')
@@ -14,8 +17,19 @@ export class PaymentMethodController {
 
   @Get()
   @Roles(Role.SuperAdmin, Role.StationAdmin, Role.Employee)
-  async getAllAsync(): Promise<PaymentMethod[]> {
-    return await this.paymentMethodService.getAllAsync();
+  async getAllAsync(@CustomQueryParams() params: QueryParams): Promise<IPaginatorData<PaymentMethod>> {
+    const filter = new MongoDBFilter(params)
+      .setCriteria()
+      .setPagination()
+      .setSort()
+      .build();
+    
+    const [payments, totalDocs] = await Promise.all([
+      this.paymentMethodService.getAllAsync(filter),
+      this.paymentMethodService.coundDocsAsync(filter)
+    ]);
+  
+    return new Paginator<PaymentMethod>(payments, params, totalDocs).getPaginator();
   }
 
   @Get(':id')

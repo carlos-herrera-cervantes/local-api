@@ -83,7 +83,7 @@ export class MongoDBFilter {
      const relationIsIncluded = 'relation' in this.queryParams;
 
     if (relationIsIncluded) {
-      this.relation = this.queryParams.relation.split(',');
+      this.relation = this.queryParams?.relation?.split(',');
       return this;
     }
 

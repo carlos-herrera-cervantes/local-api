@@ -23,6 +23,9 @@ import { ExistsPositionGuard } from './guards/exists-position.guard';
 import { ExistsCustomerGuard } from '../customers/guards/exists-customer.guard';
 import { Roles } from '../auth/roles.decorator';
 import { Role } from '../base/enums/role.enum';
+import { CustomQueryParams, QueryParams } from '../base/entities/query-params.entity';
+import { MongoDBFilter } from '../base/entities/mongodb-filter.entity';
+import { Paginator, IPaginatorData } from '../base/entities/paginator.entity';
 
 @UseGuards(JwtAuthGuard)
 @UseGuards(AssignShiftGuard)
@@ -37,8 +40,19 @@ export class PositionsController {
 
   @Get()
   @Roles(Role.SuperAdmin, Role.StationAdmin, Role.Employee)
-  async getAllAsync(): Promise<Position[]> {
-    return await this.positionsService.getAllAsync();
+  async getAllAsync(@CustomQueryParams() params: QueryParams): Promise<IPaginatorData<Position>> {
+    const filter = new MongoDBFilter(params)
+      .setCriteria()
+      .setPagination()
+      .setSort()
+      .build();
+
+    const [positions, totalDocs] = await Promise.all([
+      this.positionsService.getAllAsync(filter),
+      this.positionsService.coundDocsAsync(filter)
+    ]);
+  
+    return new Paginator<Position>(positions, params, totalDocs).getPaginator();
   }
 
   @Get(':id')

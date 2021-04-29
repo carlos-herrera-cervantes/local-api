@@ -59,7 +59,7 @@ export class Sale {
   @Prop({ type: MongooseSchema.Types.ObjectId, ref: 'Position' })
   position: Position;
 
-  @Prop({ default: [] })
+  @Prop({ default: [], type: { product: MongooseSchema.Types.ObjectId, quantity: Number }, ref: 'Product' })
   products: ProductSale[];
 
   @Prop({ type: MongooseSchema.Types.ObjectId, ref: 'User' })
@@ -68,10 +68,10 @@ export class Sale {
   @Prop({ type: MongooseSchema.Types.ObjectId, ref: 'Customer' })
   customer: Customer;
 
-  @Prop({ default: new Date() })
+  @Prop({ default: new Date().toUTCString() })
   createdAt: Date;
 
-  @Prop({ default: new Date() })
+  @Prop({ default: new Date().toUTCString() })
   updateAt: Date;
 
 }

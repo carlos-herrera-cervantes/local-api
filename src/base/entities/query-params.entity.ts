@@ -12,6 +12,8 @@ export class QueryParams {
 
   relation: string;
 
+  partial: boolean
+
 }
 
 export const CustomQueryParams = createParamDecorator((data, request): QueryParams => {
@@ -23,6 +25,7 @@ export const CustomQueryParams = createParamDecorator((data, request): QueryPara
   queryParams.sort = basePath?.sort || '{}';
   queryParams.filter = basePath?.filter || '{}';
   queryParams.relation = basePath?.relation || undefined;
+  queryParams.partial = basePath?.partial || false;
 
   return queryParams;
 });

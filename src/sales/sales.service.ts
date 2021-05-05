@@ -70,14 +70,14 @@ export class SalesService extends BaseService {
           }),
         }
       }),
-      payments: [
-        {
-          quantity: sale?.paymentTransaction?.quantity,
-          key: sale?.paymentTransaction?.paymentMethod?.key,
-          description: sale?.paymentTransaction?.paymentMethod?.description,
-          _id: sale?.paymentTransaction?.paymentMethod?._id?.toString()
+      payments: sale?.paymentTransaction?.map((payment: any) => {
+        return {
+          quantity: payment?.quantity,
+          key: payment?.paymentMethod?.key,
+          description: payment?.paymentMethod?.description,
+          _id: payment?.paymentMethod?._id?.toString()
         }
-      ],
+      }),
       client: {
         email: sale?.customer?.email,
         _id: sale?.customer?._id?.toString()

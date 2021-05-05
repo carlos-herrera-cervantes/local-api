@@ -17,6 +17,14 @@ export class CloseGuard implements CanActivate {
     const { params } = context.switchToHttp().getRequest();
     const sale: Sale = await this.salesService.getByIdAsync(params?.id);
 
+    if (!sale?.products?.length) {
+      throw new HttpException('The sale has not products', HttpStatus.BAD_REQUEST);
+    }
+
+    if (sale?.status == '202') {
+      throw new HttpException('The sale has not been paid', HttpStatus.BAD_REQUEST);
+    }
+
     if (sale?.status == '201') {
       throw new HttpException('Sale already closed', HttpStatus.BAD_REQUEST);
     }

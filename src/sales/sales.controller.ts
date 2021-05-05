@@ -144,17 +144,18 @@ export class SalesController {
   @UseGuards(ExistsPaymentGuard)
   async payAsync(
     @Param('id') id: string,
-    @Body('paymentMethodId') paymentMethodId: any
+    @Body() body,
+    @CustomQueryParams() params: QueryParams
   ): Promise<Sale> {
     const sale = await this.salesService.getByIdAsync(id) as Sale;
     const payment = {
-      quantity: sale?.total,
-      paymentMethod: paymentMethodId
+      quantity: params?.partial ? body?.quantity : sale?.total,
+      paymentMethod: body?.paymentMethodId
     } as PaymentTransaction;
     const created = await this.paymentTransactionService.createAsync(payment);
 
-    sale.paymentTransaction = created._id;
-    sale.status = '203';
+    sale.paymentTransaction.push(created._id);
+    params?.partial ? false : sale.status = '203';
 
     return await this.salesService.saveAsync(sale);
   }

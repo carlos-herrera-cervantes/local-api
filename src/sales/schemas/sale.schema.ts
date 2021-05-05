@@ -53,8 +53,8 @@ export class Sale {
   @Prop({ default: false })
   sendToCloud: boolean;
 
-  @Prop({ type: MongooseSchema.Types.ObjectId, ref: 'PaymentTransaction' })
-  paymentTransaction: PaymentTransaction;
+  @Prop({ type: [{ type: MongooseSchema.Types.ObjectId, ref: 'PaymentTransaction' }] })
+  paymentTransaction: PaymentTransaction[];
 
   @Prop({ type: MongooseSchema.Types.ObjectId, ref: 'Position' })
   position: Position;

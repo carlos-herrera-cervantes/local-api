@@ -48,7 +48,7 @@ export class BaseService {
    * @returns Document
    */
   async createAsync(doc: any): Promise<any> {
-    return this.model.create(doc);
+    return await this.model.create(doc);
   }
 
   /**
@@ -59,7 +59,7 @@ export class BaseService {
   async saveAsync(doc: any): Promise<any> {
     const instance = new this.model(doc);
     instance.isNew = false;
-    return instance.save();
+    return await instance.save();
   }
 
   /**

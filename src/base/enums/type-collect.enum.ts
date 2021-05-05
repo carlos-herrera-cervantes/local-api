@@ -1,4 +1,4 @@
 export enum TypeCollect {
-  Cash = 'Cash',
-  Voucher = 'Voucher'
+  Cash = 'cash',
+  Voucher = 'voucher'
 }

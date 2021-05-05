@@ -54,7 +54,7 @@ export class CollectMoneyService extends BaseService {
 
     user.cashMoneyAmount = 0;
     user.cardMoneyAmount = 0;
-    promises.push(user.save());
+    promises.push(this.usersService.saveAsync(user));
 
     await Promise.all(promises);
   }

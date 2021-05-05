@@ -66,6 +66,31 @@ export class SalesController {
     return new Paginator<Sale>(sales, params, totalDocs).getPaginator();
   }
 
+  @Get('me')
+  @Roles(Role.SuperAdmin, Role.StationAdmin, Role.Employee)
+  async getMeAsync(
+    @Headers('authorization') authorization: string,
+    @CustomQueryParams() params: QueryParams
+  ): Promise<IPaginatorData<Sale>> {
+    const token = authorization?.split(' ').pop();
+    const { sub } = await this.authService.getPayload(token);
+    const filter = new MongoDBFilter(params)
+      .setCriteria()
+      .setPagination()
+      .setRelation()
+      .setSort()
+      .build();
+
+    filter.criteria['user'] = sub;
+
+    const [sales, totalDocs] = await Promise.all([
+      this.salesService.getAllAsync(filter),
+      this.salesService.coundDocsAsync(filter)
+    ]);
+      
+    return new Paginator<Sale>(sales, params, totalDocs).getPaginator();
+  }
+
   @Get(':id')
   @Roles(Role.SuperAdmin, Role.StationAdmin)
   @UseGuards(ExistsSaleGuard)
@@ -76,7 +101,7 @@ export class SalesController {
   @Get('positions/:id')
   @Roles(Role.SuperAdmin, Role.StationAdmin, Role.Employee)
   @UseGuards(ExistsPositionGuard)
-  async getByUserId(
+  async getPendingsAsync(
     @Headers('authorization') authorization : string,
     @Param('id') id: string,
     @CustomQueryParams() params: QueryParams
@@ -90,19 +115,23 @@ export class SalesController {
     const current = this.shiftsService.getCurrent(shifts, localDate);
     const { start, end } = this.shiftsService.parseDateUTC(current);
 
-    const filter = {
-      criteria: {
-        createdAt: {
-          $gte: start,
-          $lte: end
-        },
-        user: sub,
-        status: {
-          $in: ['202', '203', '200']
-        },
-        position: id
-      }
-    } as IMongoDBFilter;
+    const filter = new MongoDBFilter(params)
+      .setPagination()
+      .setRelation()
+      .setSort()
+      .build();
+
+    filter.criteria = {
+      createdAt: {
+        $gte: start,
+        $lte: end
+      },
+      user: sub,
+      status: {
+        $in: ['202', '203', '200']
+      },
+      position: id
+    };
 
     const [sales, totalDocs] = await Promise.all([
       this.salesService.getAllAsync(filter),

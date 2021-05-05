@@ -7,7 +7,8 @@ import {
   Body,
   Param,
   UseGuards,
-  HttpCode
+  HttpCode,
+  Headers
 } from '@nestjs/common';
 import { Roles } from '../auth/roles.decorator';
 import { Role } from '../base/enums/role.enum';
@@ -20,12 +21,16 @@ import { User } from './schemas/user.schema';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { UsersService } from './users.service';
+import { AuthService } from '../auth/auth.service';
 
 @UseGuards(JwtAuthGuard)
 @Controller('/api/v1/users')
 export class UsersController {
   
-  constructor(private usersService: UsersService) {}
+  constructor(
+    private usersService: UsersService,
+    private authService: AuthService
+  ) {}
 
   @Get()
   @Roles(Role.SuperAdmin, Role.StationAdmin)
@@ -37,6 +42,14 @@ export class UsersController {
     ]);
 
     return new Paginator<User>(users, params, totalDocs).getPaginator();
+  }
+
+  @Get('me')
+  @Roles(Role.SuperAdmin, Role.StationAdmin, Role.Employee)
+  async getMeAsync(@Headers('authorization') authorization : string): Promise<User> {
+    const token = authorization?.split(' ').pop();
+    const { sub } = await this.authService.getPayload(token);
+    return await this.usersService.getByIdAsync(sub);
   }
 
   @Get(':id')

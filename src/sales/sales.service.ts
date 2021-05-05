@@ -414,22 +414,29 @@ export class SalesService extends BaseService {
     const payments: any = [];
 
     for (const sale of sales) {
+      const flat = sale?.paymentTransaction;
+      payments.push(...flat);
+    }
+
+    const categories: any = [];
+
+    for (const payment of payments) {
       const [label, amount] = [
-        sale?.paymentTransaction?.paymentMethod?.name,
-        sale?.paymentTransaction?.quantity
+        payment?.paymentMethod?.name,
+        payment?.quantity
       ];
-      const existsCategory = payments.find((payment: any) => payment?.label == label);
+      const existsCategory = categories.find((payment: any) => payment?.label == label);
 
       if (existsCategory) {
-        const index = payments.findIndex((payment: any) => payment?.label == label);
-        payments[index].amount += amount;
+        const index = categories.findIndex((payment: any) => payment?.label == label);
+        categories[index].amount += amount;
       }
       else {
-        payments.push({ label, amount });
+        categories.push({ label, amount });
       }
     }
 
-    return payments;
+    return categories;
   }
 
   /**

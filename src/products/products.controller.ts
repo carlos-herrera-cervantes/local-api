@@ -19,6 +19,7 @@ export class ProductsController {
   @Roles(Role.SuperAdmin, Role.StationAdmin, Role.Employee)
   async getAllAsync(@CustomQueryParams() params: QueryParams): Promise<IPaginatorData<Product>> {
     const filter = new MongoDBFilter(params)
+      .setRelation()
       .setCriteria()
       .setPagination()
       .setSort()

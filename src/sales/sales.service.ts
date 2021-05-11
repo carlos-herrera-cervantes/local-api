@@ -104,7 +104,7 @@ export class SalesService extends BaseService {
       position: positionId,
       user: userId,
       folio: 'RE' + new Date().getTime(),
-      consecutive: !lastSale.length ? 1 : lastSale[0]?.consecutive + 1,
+      consecutive: !lastSale?.length ? 1 : lastSale[0]?.consecutive + 1,
       station: station?._id
     };
   }
@@ -455,8 +455,14 @@ export class SalesService extends BaseService {
    * @returns Subtotal of products
    */
   private getSubtotalOfSale(products: any[]): number {
-    return products.reduce((accumulator: number, product: any) =>
-      accumulator + Math.floor(this.getPriceWithoutVat(product)), 0);
+    return products.reduce((accumulator: number, product: any) => {
+      const priceWithoutIva = product?.type == 'fuel' ?
+      Math.floor(this.getPriceWithoutIeps(product)) :
+      Math.floor(this.getPriceWithoutVat(product));
+
+      return accumulator + priceWithoutIva;
+    }
+    , 0);
   }
 
   /**
@@ -465,10 +471,36 @@ export class SalesService extends BaseService {
    * @returns Vat of products
    */
   private getVatOfSale(products: any[]): number {
-    return products.reduce((accumulator: number, product: any) =>
-      accumulator +
-      (product?.pricePublic * product?.quantity) - Math.floor(this.getPriceWithoutVat(product))
+    return products
+      .reduce((accumulator: number, product: any) => {
+        const priceWithoutIva = product?.type == 'fuel' ?
+        Math.floor(this.getPriceWithoutIeps(product)) :
+        Math.floor(this.getPriceWithoutVat(product));
+        
+        return accumulator + (product?.pricePublic * product?.quantity) - priceWithoutIva;
+      }
       , 0);
+  }
+
+  /**
+   * Gets the price of fuel without vat
+   * @param {Product} product Product instance
+   * @returns Price without vat
+   */
+  private getPriceWithoutIeps(product: any): number {
+    const [liters, IEPS, IVA] = [
+      product?.quantity,
+      product?.taxes?.find((tax: Tax) => tax?.name == 'IEPS') as Tax,
+      product?.taxes?.find((tax: Tax) => tax?.name == 'IVA') as Tax
+    ];
+    const iepsPerLiter = IEPS?.percentage * liters;
+    const unitCost = (product?.pricePublic - IEPS?.percentage) / (IVA?.percentage + 1) + IEPS?.percentage;
+
+    const subtotal = unitCost * liters;
+    const base = subtotal - iepsPerLiter;
+    const ivaOnCost = base * IVA?.percentage;
+
+    return product?.pricePublic - ivaOnCost;
   }
 
   /**

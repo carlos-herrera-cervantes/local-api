@@ -7,6 +7,7 @@ import {
   Body,
   Param,
   UseGuards,
+  UseInterceptors,
   Query,
   Headers,
   HttpCode
@@ -26,8 +27,10 @@ import { Role } from '../base/enums/role.enum';
 import { CustomQueryParams, QueryParams } from '../base/entities/query-params.entity';
 import { MongoDBFilter } from '../base/entities/mongodb-filter.entity';
 import { Paginator, IPaginatorData } from '../base/entities/paginator.entity';
+import { TransformInterceptor } from '../base/interceptors/response.interceptor';
 
 @UseGuards(JwtAuthGuard)
+@UseInterceptors(TransformInterceptor)
 @Controller('/api/v1/shifts')
 export class ShiftsController {
   

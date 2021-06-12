@@ -6,6 +6,7 @@ import {
   Body,
   Param,
   UseGuards,
+  UseInterceptors,
   Headers,
   HttpCode
 } from '@nestjs/common';
@@ -28,14 +29,15 @@ import { ExistsPositionGuard } from '../positions/guards/exists-position.guard';
 import { ExistsPaymentGuard } from '../paymentMethods/guards/exists-payment.guard';
 import { Roles } from '../auth/roles.decorator';
 import { Role } from '../base/enums/role.enum';
-import { IMongoDBFilter } from '../base/entities/mongodb-filter.entity';
 import { MongoDBFilter } from '../base/entities/mongodb-filter.entity';
 import { CustomQueryParams, QueryParams } from '../base/entities/query-params.entity';
 import { PaymentTransaction } from '../paymentTransactions/schemas/paymentTransaction.schema';
 import { Paginator, IPaginatorData } from '../base/entities/paginator.entity';
+import { TransformInterceptor } from '../base/interceptors/response.interceptor';
 
 @UseGuards(JwtAuthGuard)
 @UseGuards(AssignShiftGuard)
+@UseInterceptors(TransformInterceptor)
 @Controller('/api/v1/sales')
 export class SalesController {
   

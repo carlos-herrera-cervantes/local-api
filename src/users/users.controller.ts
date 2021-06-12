@@ -7,6 +7,7 @@ import {
   Body,
   Param,
   UseGuards,
+  UseInterceptors,
   HttpCode,
   Headers
 } from '@nestjs/common';
@@ -22,8 +23,10 @@ import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { UsersService } from './users.service';
 import { AuthService } from '../auth/auth.service';
+import { TransformInterceptor } from '../base/interceptors/response.interceptor';
 
 @UseGuards(JwtAuthGuard)
+@UseInterceptors(TransformInterceptor)
 @Controller('/api/v1/users')
 export class UsersController {
   

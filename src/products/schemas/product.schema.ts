@@ -2,6 +2,7 @@ import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Document, Schema as MongooseSchema } from 'mongoose';
 import { MeasurementUnit } from '../../measurementUnits/schemas/measurementUnit.schema';
 import { Tax } from '../../taxes/schemas/tax.schema';
+import { ProductType } from '../../base/enums/product-type.enum';
 
 export type ProductDocument = Product & Document;
 
@@ -19,6 +20,9 @@ export class Product {
 
   @Prop({ default: 0 })
   pricePublic: number;
+
+  @Prop({ default: ProductType.Undefined, enum: ProductType })
+  type: string;
 
   @Prop({ default: [], type: [{ type: MongooseSchema.Types.ObjectId, ref: 'Tax' }] })
   taxes: Tax[];

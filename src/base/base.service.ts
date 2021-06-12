@@ -18,9 +18,9 @@ export class BaseService {
    */
   async getAllAsync(filter?: IMongoDBFilter): Promise<any> {
     return await this.lookup({ model: this.model, filter })
-      .skip(filter?.page)
-      .limit(filter?.pageSize)
-      .sort(filter?.sort);
+      ?.skip(filter?.page)
+      ?.limit(filter?.pageSize)
+      ?.sort(filter?.sort);
   }
 
   /**
@@ -100,10 +100,10 @@ export class BaseService {
    */
    private lookup({ model, filter, operation, id }: IlookupParameters): any {
     const instance = operation == 'findById' ?
-      model.findById(id).lean() :
+      model.findById(id)?.lean() :
       operation == 'findOne' ?
-        model.findOne(filter?.criteria).lean() :
-        model.find(filter?.criteria).lean();
+        model.findOne(filter?.criteria)?.lean() :
+        model.find(filter?.criteria)?.lean();
 
     filter?.relation?.forEach((relation: string) => {
       const splited = relation.includes('.') ? relation.split('.') : relation;

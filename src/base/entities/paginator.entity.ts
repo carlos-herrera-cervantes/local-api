@@ -8,7 +8,7 @@ interface IPaginator {
 }
 
 export interface IPaginatorData<T> {
-  data: T[],
+  docs: T[],
   paginator: IPaginator
 }
 
@@ -31,7 +31,7 @@ export class Paginator<T> {
     const take = page * pageSize;
 
     return {
-      data: this.data,
+      docs: this.data,
       paginator: {
         page: page < 1 ? 1 : page,
         pageSize: pageSize < 1 ? 10 : pageSize > 100 ? 100 : pageSize,

@@ -1,4 +1,4 @@
-import { Controller, Get, Param, UseGuards } from '@nestjs/common';
+import { Controller, Get, Param, UseGuards, UseInterceptors } from '@nestjs/common';
 import { PaymentMethod } from './schemas/paymentMethod.schema';
 import { PaymentMethodService } from './paymentMethods.service';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
@@ -8,8 +8,10 @@ import { Role } from '../base/enums/role.enum';
 import { CustomQueryParams, QueryParams } from '../base/entities/query-params.entity';
 import { MongoDBFilter } from '../base/entities/mongodb-filter.entity';
 import { Paginator, IPaginatorData } from '../base/entities/paginator.entity';
+import { TransformInterceptor } from '../base/interceptors/response.interceptor';
 
 @UseGuards(JwtAuthGuard)
+@UseInterceptors(TransformInterceptor)
 @Controller('/api/v1/payment-methods')
 export class PaymentMethodController {
 

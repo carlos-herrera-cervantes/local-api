@@ -12,6 +12,7 @@ import { Tax } from '../taxes/schemas/tax.schema';
 import { BaseService } from '../base/base.service';
 
 import '../base/extensions/array.extension';
+import { User } from 'src/users/schemas/user.schema';
 
 @Injectable()
 export class SalesService extends BaseService {
@@ -141,19 +142,21 @@ export class SalesService extends BaseService {
    * @param {Sale} sale
    * @returns Void
    */
-  async chargeMoneyToUser(userId: string, sale: any): Promise<any> {
+  async chargeMoneyToUser(userId: string, sale: any): Promise<User> {
     const user = await this.usersService.getByIdAsync(userId);
 
-    for await (const payment of sale.payments) {
+    for (const payment of sale.payments) {
       if (payment?.key == '01') {
         user.cashMoneyAmount += payment.quantity;
-        this.usersService.saveAsync(user);
-        return;
+        await this.usersService.saveAsync(user);
+        return user;
       }
 
       user.cardMoneyAmount += payment.quantity;
-      this.usersService.saveAsync(user);
+      await this.usersService.saveAsync(user);
     }
+
+    return user;
   }
 
   /**

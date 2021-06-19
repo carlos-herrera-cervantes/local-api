@@ -9,7 +9,8 @@ import {
   UseGuards,
   UseInterceptors,
   HttpCode,
-  Headers
+  Headers,
+  Logger
 } from '@nestjs/common';
 import { CollectMoney } from './schemas/collect.schema';
 import { CreateCollectDto } from './dto/create-collect.dto';
@@ -23,11 +24,15 @@ import { CustomQueryParams, QueryParams } from '../base/entities/query-params.en
 import { MongoDBFilter } from '../base/entities/mongodb-filter.entity';
 import { Paginator, IPaginatorData } from '../base/entities/paginator.entity';
 import { TransformInterceptor } from '../base/interceptors/response.interceptor';
+import { ApiTags } from '@nestjs/swagger';
+import { successCreatedCollectEvent } from './logger/index';
 
+@ApiTags('Collects')
 @UseGuards(JwtAuthGuard)
 @UseInterceptors(TransformInterceptor)
 @Controller('/api/v1/collects')
 export class CollectsController {
+  private readonly logger = new Logger(CollectsController.name);
 
   constructor(
     private collectsService: CollectMoneyService,
@@ -45,14 +50,14 @@ export class CollectsController {
 
     const [collects, totalDocs] = await Promise.all([
       this.collectsService.getAllAsync(filter),
-      this.collectsService.coundDocsAsync(filter)
+      this.collectsService.countDocsAsync(filter)
     ]);
 
     return new Paginator<CollectMoney>(collects, params, totalDocs).getPaginator();
   }
 
   @Get('me')
-  @Roles(Role.SuperAdmin, Role.StationAdmin, Role.Employee)
+  @Roles(Role.All)
   async getMeAsync(
     @Headers('authorization') authorization: string,
     @CustomQueryParams() params: QueryParams
@@ -69,7 +74,7 @@ export class CollectsController {
 
     const [collects, totalDocs] = await Promise.all([
       this.collectsService.getAllAsync(filter),
-      this.collectsService.coundDocsAsync(filter)
+      this.collectsService.countDocsAsync(filter)
     ]);
 
     return new Paginator<CollectMoney>(collects, params, totalDocs).getPaginator();
@@ -84,7 +89,10 @@ export class CollectsController {
   @Post()
   @Roles(Role.SuperAdmin, Role.StationAdmin)
   async createAsync(@Body() collect: CreateCollectDto): Promise<CollectMoney> {
-    return await this.collectsService.createAsync(collect);
+    const created = await this.collectsService.createAsync(collect);
+    this.logger.log(successCreatedCollectEvent(collect.type, collect.amount, collect.user));
+    
+    return created;
   }
 
   @Patch(':id')

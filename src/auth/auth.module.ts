@@ -6,11 +6,13 @@ import { UsersModule } from '../users/users.module';
 import { PassportModule } from '@nestjs/passport';
 import { JwtModule } from '@nestjs/jwt';
 import { AuthController } from './auth.controller';
+import { HashingModule } from '../hashing/hashing.module';
 
 @Module({
   imports: [
     forwardRef(() => UsersModule),
     PassportModule,
+    HashingModule,
     JwtModule.register({
       secret: 'mySecretKey',
       signOptions: { expiresIn: '120h' }

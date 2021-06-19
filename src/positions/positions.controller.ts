@@ -28,7 +28,9 @@ import { CustomQueryParams, QueryParams } from '../base/entities/query-params.en
 import { MongoDBFilter } from '../base/entities/mongodb-filter.entity';
 import { Paginator, IPaginatorData } from '../base/entities/paginator.entity';
 import { TransformInterceptor } from '../base/interceptors/response.interceptor';
+import { ApiTags } from '@nestjs/swagger';
 
+@ApiTags('Positions')
 @UseGuards(JwtAuthGuard)
 @UseGuards(AssignShiftGuard)
 @UseInterceptors(TransformInterceptor)
@@ -42,7 +44,7 @@ export class PositionsController {
   ) {}
 
   @Get()
-  @Roles(Role.SuperAdmin, Role.StationAdmin, Role.Employee)
+  @Roles(Role.All)
   async getAllAsync(@CustomQueryParams() params: QueryParams): Promise<IPaginatorData<Position>> {
     const filter = new MongoDBFilter(params)
       .setCriteria()
@@ -52,14 +54,14 @@ export class PositionsController {
 
     const [positions, totalDocs] = await Promise.all([
       this.positionsService.getAllAsync(filter),
-      this.positionsService.coundDocsAsync(filter)
+      this.positionsService.countDocsAsync(filter)
     ]);
   
     return new Paginator<Position>(positions, params, totalDocs).getPaginator();
   }
 
   @Get(':id')
-  @Roles(Role.SuperAdmin, Role.StationAdmin, Role.Employee)
+  @Roles(Role.All)
   @UseGuards(ExistsPositionGuard)
   async getByIdAsync(@Param() params): Promise<Position> {
     return await this.positionsService.getByIdAsync(params.id);
@@ -72,7 +74,7 @@ export class PositionsController {
   }
 
   @Post(':id/sales')
-  @Roles(Role.SuperAdmin, Role.StationAdmin, Role.Employee)
+  @Roles(Role.All)
   @UseGuards(ExistsPositionGuard)
   @UseGuards(ExistsCustomerGuard)
   async createSaleAsync(

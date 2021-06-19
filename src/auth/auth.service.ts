@@ -3,13 +3,15 @@ import { UsersService } from '../users/users.service';
 import { JwtService } from '@nestjs/jwt';
 import { User } from '../users/schemas/user.schema';
 import { IMongoDBFilter } from '../base/entities/mongodb-filter.entity';
+import { HashingService } from 'src/hashing/hashing.service';
 
 @Injectable()
 export class AuthService {
 
   constructor(
     private usersService: UsersService,
-    private jwtService: JwtService
+    private jwtService: JwtService,
+    private hashingService: HashingService
   ) {}
 
   /**
@@ -21,7 +23,7 @@ export class AuthService {
     const filter = { criteria: { email } } as IMongoDBFilter;
     const user = await this.usersService.getOneAsync(filter) as User;
 
-    if (user?.password == password) {
+    if (await this.hashingService.compareAsync(password, user.password)) {
       const { password, ...result } = user;
       return result;
     }

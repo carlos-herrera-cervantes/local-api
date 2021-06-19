@@ -34,7 +34,9 @@ import { CustomQueryParams, QueryParams } from '../base/entities/query-params.en
 import { PaymentTransaction } from '../paymentTransactions/schemas/paymentTransaction.schema';
 import { Paginator, IPaginatorData } from '../base/entities/paginator.entity';
 import { TransformInterceptor } from '../base/interceptors/response.interceptor';
+import { ApiTags } from '@nestjs/swagger';
 
+@ApiTags('Sales')
 @UseGuards(JwtAuthGuard)
 @UseGuards(AssignShiftGuard)
 @UseInterceptors(TransformInterceptor)
@@ -62,14 +64,14 @@ export class SalesController {
 
     const [sales, totalDocs] = await Promise.all([
       this.salesService.getAllAsync(filter),
-      this.salesService.coundDocsAsync(filter)
+      this.salesService.countDocsAsync(filter)
     ]);
     
     return new Paginator<Sale>(sales, params, totalDocs).getPaginator();
   }
 
   @Get('me')
-  @Roles(Role.SuperAdmin, Role.StationAdmin, Role.Employee)
+  @Roles(Role.All)
   async getMeAsync(
     @Headers('authorization') authorization: string,
     @CustomQueryParams() params: QueryParams
@@ -87,7 +89,7 @@ export class SalesController {
 
     const [sales, totalDocs] = await Promise.all([
       this.salesService.getAllAsync(filter),
-      this.salesService.coundDocsAsync(filter)
+      this.salesService.countDocsAsync(filter)
     ]);
       
     return new Paginator<Sale>(sales, params, totalDocs).getPaginator();
@@ -101,7 +103,7 @@ export class SalesController {
   }
 
   @Get('positions/:id')
-  @Roles(Role.SuperAdmin, Role.StationAdmin, Role.Employee)
+  @Roles(Role.All)
   @UseGuards(ExistsPositionGuard)
   async getPendingsAsync(
     @Headers('authorization') authorization : string,
@@ -137,7 +139,7 @@ export class SalesController {
 
     const [sales, totalDocs] = await Promise.all([
       this.salesService.getAllAsync(filter),
-      this.salesService.coundDocsAsync(filter)
+      this.salesService.countDocsAsync(filter)
     ]);
 
     return new Paginator<Sale>(sales, params, totalDocs).getPaginator();
@@ -151,7 +153,7 @@ export class SalesController {
   }
 
   @Patch(':id/products')
-  @Roles(Role.SuperAdmin, Role.StationAdmin, Role.Employee)
+  @Roles(Role.All)
   @UseGuards(ExistsSaleGuard)
   @UseGuards(AddProductGuard)
   async addProductAsync(@Param('id') id : string, @Body() sale: UpdateSaleDto): Promise<Sale> {
@@ -159,7 +161,7 @@ export class SalesController {
   }
 
   @Patch(':id/calculate-total')
-  @Roles(Role.SuperAdmin, Role.StationAdmin, Role.Employee)
+  @Roles(Role.All)
   @UseGuards(ExistsSaleGuard)
   @UseGuards(CalculateTotalGuard)
   async calculateTotalAsync(@Param('id') id: string): Promise<Sale> {
@@ -169,7 +171,7 @@ export class SalesController {
   }
 
   @Patch(':id/pay')
-  @Roles(Role.SuperAdmin, Role.StationAdmin, Role.Employee)
+  @Roles(Role.All)
   @UseGuards(ExistsSaleGuard)
   @UseGuards(PayGuard)
   @UseGuards(ExistsPaymentGuard)
@@ -192,7 +194,7 @@ export class SalesController {
   }
 
   @Patch(':id/close')
-  @Roles(Role.SuperAdmin, Role.StationAdmin, Role.Employee)
+  @Roles(Role.All)
   @UseGuards(ExistsSaleGuard)
   @UseGuards(CloseGuard)
   async closeAsync(

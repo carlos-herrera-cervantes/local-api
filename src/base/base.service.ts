@@ -17,10 +17,14 @@ export class BaseService {
    * @returns List of documents
    */
   async getAllAsync(filter?: IMongoDBFilter): Promise<any> {
-    return await this.lookup({ model: this.model, filter })
+    try {
+      return await this.lookup({ model: this.model, filter })
       ?.skip(filter?.page)
       ?.limit(filter?.pageSize)
       ?.sort(filter?.sort);
+    } catch (err) {
+      return await this.lookup({ model: this.model, filter });
+    }
   }
 
   /**
@@ -49,6 +53,15 @@ export class BaseService {
    */
   async createAsync(doc: any): Promise<any> {
     return await this.model.create(doc);
+  }
+
+  /**
+   * Add a group of documents
+   * @param {Array} docs Group of mongoose documents
+   * @returns Insertion result
+   */
+  async createManyAsync(docs: any[]): Promise<any> {
+    return await this.model.insertMany(docs);
   }
 
   /**
@@ -86,7 +99,7 @@ export class BaseService {
    * @param {object} filter Object with specific fields to filter
    * @returns The total of documents
    */
-  async coundDocsAsync(filter?: IMongoDBFilter): Promise<number> {
+  async countDocsAsync(filter?: IMongoDBFilter): Promise<number> {
     return await this.model.countDocuments(filter?.criteria);
   }
 
@@ -99,19 +112,25 @@ export class BaseService {
    * @returns Operation hook
    */
    private lookup({ model, filter, operation, id }: IlookupParameters): any {
-    const instance = operation == 'findById' ?
-      model.findById(id)?.lean() :
-      operation == 'findOne' ?
+     try {
+      const instance = operation == 'findById' ?
+        model.findById(id)?.lean() :
+          operation == 'findOne' ?
         model.findOne(filter?.criteria)?.lean() :
-        model.find(filter?.criteria)?.lean();
+          model.find(filter?.criteria)?.lean();
 
-    filter?.relation?.forEach((relation: string) => {
-      const splited = relation.includes('.') ? relation.split('.') : relation;
-      const filter = this.getStringQuery(splited);
-      instance.populate(filter);
-    });
+      filter?.relation?.forEach((relation: string) => {
+        const splited = relation.includes('.') ? relation.split('.') : relation;
+        const filter = this.getStringQuery(splited);
+        instance?.populate(filter);
+      });
 
-    return instance;
+      return instance;
+    } catch (err) {
+      return operation == 'findById' ? model.findById(id) :
+        operation == 'findOne' ? model.findOne(filter?.criteria) :
+        model.find(filter?.criteria);
+    }
   }
 
   /**

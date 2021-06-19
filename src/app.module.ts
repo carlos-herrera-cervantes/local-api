@@ -16,17 +16,20 @@ import { AuthModule } from './auth/auth.module';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { EventEmitterModule } from '@nestjs/event-emitter';
 import { FirebaseModule } from './firebase/firebase.module';
+import { LanguageModule } from './config/languages/language.module';
 import { RolesGuard } from './auth/guards/roles.guard';
 import { APP_GUARD } from '@nestjs/core';
+import { LoaderUsers } from './hooks/loader-users.seed';
 
 @Module({
   imports: [
     ConfigModule.forRoot({ isGlobal: true }),
+    LanguageModule,
     EventEmitterModule.forRoot(),
     MongooseModule.forRootAsync({
       imports: [ConfigModule],
       useFactory: async (configService: ConfigService) => ({
-        uri: `mongodb://${configService.get<string>('DB_HOST')}/${configService.get<string>('DB_NAME')}`
+        uri: configService.get<string>('DB_URI')
       }),
       inject: [ConfigService]
     }),
@@ -50,7 +53,8 @@ import { APP_GUARD } from '@nestjs/core';
     {
       provide: APP_GUARD,
       useClass: RolesGuard
-    }
+    },
+    LoaderUsers
   ],
 })
 export class AppModule {}

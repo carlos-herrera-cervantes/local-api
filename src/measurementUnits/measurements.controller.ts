@@ -22,7 +22,9 @@ import { CustomQueryParams, QueryParams } from '../base/entities/query-params.en
 import { MongoDBFilter } from '../base/entities/mongodb-filter.entity';
 import { Paginator, IPaginatorData } from '../base/entities/paginator.entity';
 import { TransformInterceptor } from '../base/interceptors/response.interceptor';
+import { ApiTags } from '@nestjs/swagger';
 
+@ApiTags('Measurement Units')
 @UseGuards(JwtAuthGuard)
 @UseInterceptors(TransformInterceptor)
 @Controller('/api/v1/measurement-units')
@@ -41,7 +43,7 @@ export class MeasurementsController {
 
     const [measurements, totalDocs] = await Promise.all([
       this.measurementsService.getAllAsync(filter),
-      this.measurementsService.coundDocsAsync(filter)
+      this.measurementsService.countDocsAsync(filter)
     ]);
   
     return new Paginator<MeasurementUnit>(measurements, params, totalDocs).getPaginator();

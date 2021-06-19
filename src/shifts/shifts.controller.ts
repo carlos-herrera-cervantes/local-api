@@ -28,7 +28,9 @@ import { CustomQueryParams, QueryParams } from '../base/entities/query-params.en
 import { MongoDBFilter } from '../base/entities/mongodb-filter.entity';
 import { Paginator, IPaginatorData } from '../base/entities/paginator.entity';
 import { TransformInterceptor } from '../base/interceptors/response.interceptor';
+import { ApiTags } from '@nestjs/swagger';
 
+@ApiTags('Shifts')
 @UseGuards(JwtAuthGuard)
 @UseInterceptors(TransformInterceptor)
 @Controller('/api/v1/shifts')
@@ -53,13 +55,14 @@ export class ShiftsController {
 
     const [shifts, totalDocs] = await Promise.all([
       this.shiftsService.getAllAsync(filter),
-      this.shiftsService.coundDocsAsync(filter)
+      this.shiftsService.countDocsAsync(filter)
     ]);
   
     return new Paginator<Shift>(shifts, params, totalDocs).getPaginator();
   }
 
   @Get('cut')
+  @Roles(Role.All)
   async cutAsync(
     @Query('previous') previous: boolean,
     @Headers('authorization') authorization: string

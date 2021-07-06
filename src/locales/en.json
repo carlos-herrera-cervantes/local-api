@@ -1,0 +1,4 @@
+{
+  "TokenExpiredError": "Expired token.",
+  "MissingCustomer": "Customer not found."
+}

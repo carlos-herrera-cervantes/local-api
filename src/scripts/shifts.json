@@ -1,0 +1,41 @@
+[
+  {
+    "name": "Morning",
+    "order": 1,
+    "startTime": "07:00:00",
+    "endTime": "11:59:59",
+    "monday": [],
+    "tuesday": [],
+    "wednesday": [],
+    "thursday": [],
+    "friday": [],
+    "saturday": [],
+    "sunday": []
+  },
+  {
+    "name": "Evening",
+    "order": 2,
+    "startTime": "12:00:00",
+    "endTime": "21:59:59",
+    "monday": [],
+    "tuesday": [],
+    "wednesday": [],
+    "thursday": [],
+    "friday": [],
+    "saturday": [],
+    "sunday": []
+  },
+  {
+    "name": "Night",
+    "order": 3,
+    "startTime": "22:00:00",
+    "endTime": "06:59:59",
+    "monday": [],
+    "tuesday": [],
+    "wednesday": [],
+    "thursday": [],
+    "friday": [],
+    "saturday": [],
+    "sunday": []
+  }
+]

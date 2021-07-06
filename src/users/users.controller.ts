@@ -9,11 +9,14 @@ import {
   UseGuards,
   UseInterceptors,
   HttpCode,
-  Headers
+  Headers,
+  Query,
+  UseFilters
 } from '@nestjs/common';
 import {
+  ApiProduces,
   ApiConsumes,
-  ApiResponse,
+  ApiOkResponse,
   ApiTags,
   ApiForbiddenResponse,
   ApiInternalServerErrorResponse,
@@ -24,20 +27,24 @@ import { Roles } from '../auth/roles.decorator';
 import { Role } from '../base/enums/role.enum';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { ExistsUserGuard } from './guards/exists-user.guard';
-import { CustomQueryParams, QueryParams } from '../base/entities/query-params.entity';
 import { MongoDBFilter } from '../base/entities/mongodb-filter.entity';
 import { Paginator, IPaginatorData } from '../base/entities/paginator.entity';
 import { User } from './schemas/user.schema';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
-import { ListAllDto, SingleUserDto } from './dto/list-all.dto';
+import { ListAllUserDto, SingleUserDto } from './dto/list-all-user.dto';
+import { QueryParamsListDto } from '../base/dto/base-list.dto';
+import { FailResponseDto } from '../base/dto/fail-response.dto';
 import { UsersService } from './users.service';
 import { AuthService } from '../auth/auth.service';
 import { TransformInterceptor } from '../base/interceptors/response.interceptor';
+import { HttpExceptionFilter } from '../config/exceptions/http-exception.filter';
 
 @ApiTags('Users')
 @ApiConsumes('application/json')
+@ApiProduces('application/json')
 @UseGuards(JwtAuthGuard)
+@UseFilters(new HttpExceptionFilter())
 @UseInterceptors(TransformInterceptor)
 @Controller('/api/v1/users')
 export class UsersController {
@@ -48,11 +55,11 @@ export class UsersController {
   ) {}
 
   @Get()
-  @ApiResponse({ type: ListAllDto, isArray: false, status: 200 })
-  @ApiForbiddenResponse({ description: 'Forbidden resource' })
+  @ApiOkResponse({ type: ListAllUserDto, isArray: false })
+  @ApiForbiddenResponse({ description: 'Forbidden resource', type: FailResponseDto })
   @ApiInternalServerErrorResponse({ description: 'Server error' })
   @Roles(Role.SuperAdmin, Role.StationAdmin)
-  async getAllAsync(@CustomQueryParams() params: QueryParams): Promise<IPaginatorData<User>> {
+  async getAllAsync(@Query() params: QueryParamsListDto): Promise<IPaginatorData<User>> {
     const filter = new MongoDBFilter(params).setCriteria().setPagination().setSort().build();
     const [users, totalDocs] = await Promise.all([
       this.usersService.getAllAsync(filter),
@@ -63,8 +70,8 @@ export class UsersController {
   }
 
   @Get('me')
-  @ApiResponse({ type: SingleUserDto, isArray: false, status: 200 })
-  @ApiForbiddenResponse({ description: 'Forbidden resource' })
+  @ApiOkResponse({ type: SingleUserDto, isArray: false })
+  @ApiForbiddenResponse({ description: 'Forbidden resource', type: FailResponseDto })
   @ApiInternalServerErrorResponse({ description: 'Server error' })
   @Roles(Role.All)
   async getMeAsync(@Headers('authorization') authorization : string): Promise<User> {
@@ -74,45 +81,45 @@ export class UsersController {
   }
 
   @Get(':id')
-  @ApiResponse({ type: SingleUserDto, isArray: false, status: 200 })
-  @ApiNotFoundResponse({ description: 'Resources not found' })
-  @ApiForbiddenResponse({ description: 'Forbidden resource' })
+  @ApiOkResponse({ type: SingleUserDto, isArray: false })
+  @ApiForbiddenResponse({ description: 'Forbidden resource', type: FailResponseDto })
+  @ApiNotFoundResponse({ description: 'Resource not found', type: FailResponseDto })
   @ApiInternalServerErrorResponse({ description: 'Server error' })
   @Roles(Role.SuperAdmin, Role.StationAdmin)
   @UseGuards(ExistsUserGuard)
-  async getByIdAsync(@Param() params): Promise<User> {
-    return await this.usersService.getByIdAsync(params.id);
+  async getByIdAsync(@Param('id') id: string): Promise<User> {
+    return await this.usersService.getByIdAsync(id);
   }
 
   @Post()
-  @ApiResponse({ type: SingleUserDto, isArray: false, status: 201 })
-  @ApiUnprocessableEntityResponse({ description: 'Invalid model' })
+  @ApiOkResponse({ type: SingleUserDto, isArray: false, status: 201 })
+  @ApiUnprocessableEntityResponse({ description: 'Invalid model', type: FailResponseDto })
   @ApiInternalServerErrorResponse({ description: 'Server error' })
   async createAsync(@Body() user: CreateUserDto): Promise<User> {
     return await this.usersService.createAsync(user);
   }
 
   @Patch(':id')
-  @ApiResponse({ type: SingleUserDto, isArray: false, status: 200 })
-  @ApiUnprocessableEntityResponse({ description: 'Invalid model' })
-  @ApiNotFoundResponse({ description: 'Resources not found' })
-  @ApiForbiddenResponse({ description: 'Forbidden resource' })
+  @ApiOkResponse({ type: SingleUserDto, isArray: false })
+  @ApiForbiddenResponse({ description: 'Forbidden resource', type: FailResponseDto })
+  @ApiUnprocessableEntityResponse({ description: 'Invalid model', type: FailResponseDto })
+  @ApiNotFoundResponse({ description: 'Resource not found', type: FailResponseDto })
   @ApiInternalServerErrorResponse({ description: 'Server error' })
   @Roles(Role.SuperAdmin, Role.StationAdmin)
   @UseGuards(ExistsUserGuard)
-  async updateByIdAsync(@Param() params, @Body() user: UpdateUserDto): Promise<User> {
-    return await this.usersService.updateOneByIdAsync(params.id, user);
+  async updateByIdAsync(@Param('id') id: string, @Body() user: UpdateUserDto): Promise<User> {
+    return await this.usersService.updateOneByIdAsync(id, user);
   }
 
   @Delete(':id')
-  @ApiResponse({ isArray: false, status: 204, description: 'No content' })
-  @ApiNotFoundResponse({ description: 'Resources not found' })
-  @ApiForbiddenResponse({ description: 'Forbidden resource' })
+  @ApiOkResponse({ isArray: false, status: 204, description: 'No content' })
+  @ApiForbiddenResponse({ description: 'Forbidden resource', type: FailResponseDto })
+  @ApiNotFoundResponse({ description: 'Resource not found', type: FailResponseDto })
   @ApiInternalServerErrorResponse({ description: 'Server error' })
   @Roles(Role.SuperAdmin)
   @UseGuards(ExistsUserGuard)
   @HttpCode(204)
-  async deleteByIdAsync(@Param() params): Promise<User> {
-    return await this.usersService.deleteOneByIdAsync(params.id);
+  async deleteByIdAsync(@Param('id') id: string): Promise<User> {
+    return await this.usersService.deleteOneByIdAsync(id);
   }
 }

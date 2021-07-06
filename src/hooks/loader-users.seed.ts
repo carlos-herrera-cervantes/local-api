@@ -14,39 +14,37 @@ export class LoaderUsers implements OnApplicationBootstrap {
   ) {}
 
   async onApplicationBootstrap(): Promise<void> {
-    try {
-      if (this.configService.get<string>('ENVIRONMENT') !== 'test') {
-        const totalUsers = await this.usersService.countDocsAsync();
-  
-        return totalUsers > 0 ? this.logger.log({
-          datetime: new Date(),
-          appId: '',
-          event: 'seed_users_success',
-          level: 'INFO',
-          description: 'The basic users to login have already been created'
-        }) : (
-          await this.usersService.createManyAsync(users as CreateUserDto[]),
-          this.logger.log({
-            datetime: new Date(),
-            appId: '',
-            event: 'seed_users_success',
-            level: 'INFO',
-            description: 'The basic users to login have been created successfully'
-          })
-        );
-      }
-    }
-    catch (err) {
-      this.logger.error({
+    if (this.configService.get<string>('NODE_ENV') == 'test') return;
+
+    const totalUsers = await this.usersService.countDocsAsync();
+
+    if (totalUsers > 0) {
+      this.logger.log({
         datetime: new Date(),
         appId: '',
-        event: 'seed_users_fail',
-        level: 'ERROR',
-        description: 'Something went wrong trying to create the basic users: ' + err?.message
+        event: 'seed_users_success',
+        level: 'INFO',
+        description: 'The basic users to login have already been created'
       });
 
       return;
     }
+
+    await this.usersService.createManyAsync(users as CreateUserDto[]).catch(err => this.logger.error({
+      datetime: new Date(),
+      appId: '',
+      event: 'seed_users_fail',
+      level: 'ERROR',
+      description: 'Something went wrong trying to create the basic users: ' + err?.message
+    }));
+
+    this.logger.log({
+      datetime: new Date(),
+      appId: '',
+      event: 'seed_users_success',
+      level: 'INFO',
+      description: 'The basic users to login have been created successfully'
+    });
   }
 
 }

@@ -56,6 +56,16 @@ export class AddProductGuard implements CanActivate {
       throw new HttpException('Product does not exist', HttpStatus.NOT_FOUND);
     }
 
+    result.forEach((product: Product) => {
+      if (!product.measurementUnit) {
+        throw new HttpException('Missing measurement unit', HttpStatus.UNPROCESSABLE_ENTITY);
+      }
+
+      if (!product.taxes) {
+        throw new HttpException('Missing tax', HttpStatus.UNPROCESSABLE_ENTITY);
+      }
+    });
+
     return true;
   }
 

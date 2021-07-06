@@ -24,7 +24,7 @@ export class TaskCreatedListener {
   @OnEvent('task.created')
   async handleTaskCreatedEvent(event: TaskCreatedEvent): Promise<void> {
     const operation = this.selectQueryByModel(event);
-    return await operation;
+    await operation;
   }
 
   /**

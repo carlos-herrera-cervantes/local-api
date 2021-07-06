@@ -16,15 +16,17 @@ import { AuthModule } from './auth/auth.module';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { EventEmitterModule } from '@nestjs/event-emitter';
 import { FirebaseModule } from './firebase/firebase.module';
-import { LanguageModule } from './config/languages/language.module';
+import { B2CModule } from './b2c/b2c.module';
 import { RolesGuard } from './auth/guards/roles.guard';
 import { APP_GUARD } from '@nestjs/core';
-import { LoaderUsers } from './hooks/loader-users.seed';
+import { LoaderShifts } from './hooks/loader-shifts.seed';
+import { LoaderPositions } from './hooks/loader-positions.seed';
+import { LoaderMeasurements } from './hooks/loader-measurements.seed';
+import { LoaderTaxes } from './hooks/loader-taxes.seed';
 
 @Module({
   imports: [
     ConfigModule.forRoot({ isGlobal: true }),
-    LanguageModule,
     EventEmitterModule.forRoot(),
     MongooseModule.forRootAsync({
       imports: [ConfigModule],
@@ -46,7 +48,8 @@ import { LoaderUsers } from './hooks/loader-users.seed';
     StationsModule,
     TaxesModule,
     AuthModule,
-    FirebaseModule
+    FirebaseModule,
+    B2CModule,
   ],
   controllers: [],
   providers: [
@@ -54,7 +57,10 @@ import { LoaderUsers } from './hooks/loader-users.seed';
       provide: APP_GUARD,
       useClass: RolesGuard
     },
-    LoaderUsers
+    LoaderShifts,
+    LoaderPositions,
+    LoaderTaxes,
+    LoaderMeasurements
   ],
 })
 export class AppModule {}

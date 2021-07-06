@@ -1,0 +1,4 @@
+{
+  "TokenExpiredError": "Token caducado.",
+  "MissingCustomer": "Cliente no encontrado."
+}

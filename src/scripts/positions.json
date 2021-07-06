@@ -1,0 +1,17 @@
+[
+  {
+    "status": "200",
+    "name": "North A",
+    "number": 1
+  },
+  {
+    "status": "200",
+    "name": "North B",
+    "number": 2
+  },
+  {
+    "status": "200",
+    "name": "West A",
+    "number": 3
+  }
+]

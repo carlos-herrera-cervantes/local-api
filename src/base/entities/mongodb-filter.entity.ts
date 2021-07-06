@@ -1,4 +1,4 @@
-import { QueryParams } from './query-params.entity';
+import { QueryParamsListDto } from '../dto/base-list.dto';
 
 export interface IMongoDBFilter {
   sort: any,
@@ -20,7 +20,7 @@ export class MongoDBFilter {
 
   protected relation: string[];
 
-  constructor(private readonly queryParams: QueryParams) {}
+  constructor(private readonly queryParams: QueryParamsListDto) {}
 
   /**
    * Sets the properties to apply the sort
@@ -33,7 +33,7 @@ export class MongoDBFilter {
       this.sort = {};
       return this;
     }
-    
+
     this.sort = JSON.parse(this.queryParams.sort);
     return this;
   }
@@ -64,9 +64,9 @@ export class MongoDBFilter {
    * @returns Filter instance
    */
    setCriteria(): MongoDBFilter {
-    const sortIsNotIncluded = Object.entries(this.queryParams).length == 0;
+    const filterIsNotIncluded = !('filter' in this.queryParams);
 
-    if (sortIsNotIncluded) {
+    if (filterIsNotIncluded) {
       this.criteria = {};
       return this;
     }

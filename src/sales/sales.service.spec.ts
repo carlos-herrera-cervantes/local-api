@@ -72,16 +72,12 @@ describe('SalesService', () => {
           useValue: {
             find: jest.fn().mockImplementation(() => Promise.resolve([GLOBAL_SALE_MOCKED])),
             findById: jest.fn().mockImplementation(() => Promise.resolve(GLOBAL_SALE_MOCKED)),
-            lean: jest.fn(),
-            skip: jest.fn(),
-            limit: jest.fn(),
-            sort: jest.fn(),
           }
         },
         {
           provide: StationsService,
           useValue: {
-            getOneAsync: jest.fn().mockResolvedValue('fake_saved_station')
+            getOneAsync: jest.fn()
           }
         },
         {

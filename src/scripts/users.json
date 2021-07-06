@@ -1,0 +1,11 @@
+[
+  {
+    "email": "super.admin@mytransformation.com",
+    "firstName": "Super",
+    "lastName": "Admin",
+    "password": "super.admin",
+    "roles": [
+      "SuperAdmin"
+    ]
+  }
+]

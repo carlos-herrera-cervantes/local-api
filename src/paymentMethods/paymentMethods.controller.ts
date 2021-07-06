@@ -9,7 +9,9 @@ import { CustomQueryParams, QueryParams } from '../base/entities/query-params.en
 import { MongoDBFilter } from '../base/entities/mongodb-filter.entity';
 import { Paginator, IPaginatorData } from '../base/entities/paginator.entity';
 import { TransformInterceptor } from '../base/interceptors/response.interceptor';
+import { ApiTags } from '@nestjs/swagger';
 
+@ApiTags('Payment Methods')
 @UseGuards(JwtAuthGuard)
 @UseInterceptors(TransformInterceptor)
 @Controller('/api/v1/payment-methods')
@@ -18,7 +20,7 @@ export class PaymentMethodController {
   constructor(private paymentMethodService: PaymentMethodService) {}
 
   @Get()
-  @Roles(Role.SuperAdmin, Role.StationAdmin, Role.Employee)
+  @Roles(Role.All)
   async getAllAsync(@CustomQueryParams() params: QueryParams): Promise<IPaginatorData<PaymentMethod>> {
     const filter = new MongoDBFilter(params)
       .setCriteria()
@@ -28,14 +30,14 @@ export class PaymentMethodController {
     
     const [payments, totalDocs] = await Promise.all([
       this.paymentMethodService.getAllAsync(filter),
-      this.paymentMethodService.coundDocsAsync(filter)
+      this.paymentMethodService.countDocsAsync(filter)
     ]);
   
     return new Paginator<PaymentMethod>(payments, params, totalDocs).getPaginator();
   }
 
   @Get(':id')
-  @Roles(Role.SuperAdmin, Role.StationAdmin, Role.Employee)
+  @Roles(Role.All)
   @UseGuards(ExistsPaymentGuard)
   async getByIdAsync(@Param() params): Promise<PaymentMethod> {
     return await this.paymentMethodService.getByIdAsync(params.id);

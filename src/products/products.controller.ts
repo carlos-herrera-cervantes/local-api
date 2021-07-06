@@ -9,7 +9,9 @@ import { CustomQueryParams, QueryParams } from '../base/entities/query-params.en
 import { MongoDBFilter } from '../base/entities/mongodb-filter.entity';
 import { Paginator, IPaginatorData } from '../base/entities/paginator.entity';
 import { TransformInterceptor } from '../base/interceptors/response.interceptor';
+import { ApiTags } from '@nestjs/swagger';
 
+@ApiTags('Products')
 @UseGuards(JwtAuthGuard)
 @UseInterceptors(TransformInterceptor)
 @Controller('/api/v1/products')
@@ -18,7 +20,7 @@ export class ProductsController {
   constructor(private productsService: ProductsService) {}
 
   @Get()
-  @Roles(Role.SuperAdmin, Role.StationAdmin, Role.Employee)
+  @Roles(Role.All)
   async getAllAsync(@CustomQueryParams() params: QueryParams): Promise<IPaginatorData<Product>> {
     const filter = new MongoDBFilter(params)
       .setRelation()
@@ -29,13 +31,14 @@ export class ProductsController {
 
     const [products, totalDocs] = await Promise.all([
       this.productsService.getAllAsync(filter),
-      this.productsService.coundDocsAsync(filter)
+      this.productsService.countDocsAsync(filter)
     ]);
   
     return new Paginator<Product>(products, params, totalDocs).getPaginator();
   }
 
   @Get(':id')
+  @Roles(Role.All)
   async getByIdAsync(@Param() params): Promise<Product> {
     return await this.productsService.getByIdAsync(params.id);
   }

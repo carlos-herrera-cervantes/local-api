@@ -7,6 +7,7 @@ import { Tax, TaxSchema } from './schemas/tax.schema';
 @Module({
   imports: [MongooseModule.forFeature([{ name: Tax.name, schema: TaxSchema }])],
   controllers: [TaxesController],
-  providers: [TaxesService]
+  providers: [TaxesService],
+  exports: [TaxesService]
 })
 export class TaxesModule {}

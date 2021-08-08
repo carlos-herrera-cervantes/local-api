@@ -1,0 +1,14 @@
+[
+  {
+    "name": "IEPS",
+    "status": true,
+    "percentage": 0.5508,
+    "description": "Production tax"
+  },
+  {
+    "name": "IVA",
+    "status": true,
+    "percentage": 0.16,
+    "description": "Value added tax"
+  }
+]

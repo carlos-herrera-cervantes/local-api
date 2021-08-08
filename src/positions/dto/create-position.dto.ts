@@ -9,6 +9,6 @@ export class CreatePositionDto {
   name: string;
 
   @ApiProperty()
-  number: string;
+  number: number;
 
 }

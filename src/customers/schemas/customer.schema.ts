@@ -16,7 +16,7 @@ export class Customer {
   @Prop({ required: true })
   email: string;
 
-  @Prop({ default: Gender.Not_Specified, enum: Gender })
+  @Prop({ default: Gender.Not_Specified_US, enum: Gender })
   gender: string;
 
   @Prop({ default: new Date().toUTCString() })

@@ -83,8 +83,8 @@ export class FirebaseService implements OnModuleInit {
    * @returns {TaskCreatedEvent} Type of event to apply to products collection
    */
    private emitProductsEvent (): any {
-    const ref = `${this.configService.get<string>('PATH_TASKS')}/products`;
-    return this.emitBaseEvent(ref);
+    const ref = `${this.configService.get<string>('PATH_TASKS')}/products/tasks`;
+    this.emitBaseEventFirebase(ref);
   }
 
   /**
@@ -92,8 +92,8 @@ export class FirebaseService implements OnModuleInit {
    * @returns {TaskCreatedEvent} Type of event to apply to payment method collection
    */
    private emitPaymentsEvent (): any {
-    const ref = `${this.configService.get<string>('PATH_TASKS')}/payments`;
-    return this.emitBaseEvent(ref);
+    const ref = `${this.configService.get<string>('PATH_TASKS')}/payments/tasks`;
+    this.emitBaseEventFirebase(ref);
   }
 
   /**
@@ -123,6 +123,21 @@ export class FirebaseService implements OnModuleInit {
       const message = new TaskCreatedEvent(data);
       this.eventEmitter.emit('task.created', message);
       resolve();
+    });
+  }
+
+  /**
+   * Emit an event to specific path
+   * @param path String path
+   * @returns Event emitted
+   */
+  private emitBaseEventFirebase(path: string): void {
+    const database = this.initializeApp();
+
+    database.ref(path).orderByChild('Model/createdAt').on('child_added', snapshot => {
+      const obj = snapshot.val();
+      const message = new TaskCreatedEvent(obj);
+      this.eventEmitter.emit('task.created', message);
     });
   }
 

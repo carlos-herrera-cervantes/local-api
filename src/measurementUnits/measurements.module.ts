@@ -7,6 +7,7 @@ import { MeasurementUnit, MeasurementUnitSchema } from './schemas/measurementUni
 @Module({
   imports: [MongooseModule.forFeature([{ name: MeasurementUnit.name, schema: MeasurementUnitSchema }])],
   controllers: [MeasurementsController],
-  providers: [MeasurementsService]
+  providers: [MeasurementsService],
+  exports: [MeasurementsService]
 })
 export class MeasurementsModule {}

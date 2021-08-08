@@ -82,6 +82,7 @@ export class BaseService {
    * @returns Document
    */
   async updateOneByIdAsync(id: string, doc: any): Promise<any> {
+    doc.updateAt = new Date().toUTCString();
     return await this.model.findOneAndUpdate({ _id: id }, { $set: doc }, { new: true });
   }
 

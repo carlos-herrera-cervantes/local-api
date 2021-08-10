@@ -23,6 +23,7 @@ import { LoaderShifts } from './hooks/loader-shifts.seed';
 import { LoaderPositions } from './hooks/loader-positions.seed';
 import { LoaderMeasurements } from './hooks/loader-measurements.seed';
 import { LoaderTaxes } from './hooks/loader-taxes.seed';
+import { LoaderUsers } from './hooks/loader-users.seed';
 
 @Module({
   imports: [
@@ -60,7 +61,8 @@ import { LoaderTaxes } from './hooks/loader-taxes.seed';
     LoaderShifts,
     LoaderPositions,
     LoaderTaxes,
-    LoaderMeasurements
+    LoaderMeasurements,
+    LoaderUsers,
   ],
 })
 export class AppModule {}

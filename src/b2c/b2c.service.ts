@@ -8,47 +8,26 @@ export class B2CService {
   constructor(private readonly httpService: HttpService) {}
 
   /**
-   * Authenticates against B2C API
-   * @param host
-   * @param data
-   * @example
-   * { email: 'user@example.com', password: 'secret' }
-   * @returns Json Web Token
-   */
-  async authAsync(host: string, data: any): Promise<string | boolean> {
-    try {
-      const response = await this.httpService.post(host, data).toPromise();
-      return response?.data?.data;
-    } catch (err) {
-      this.logger.error({
-        datetime: new Date(),
-        appId: '',
-        event: 'b2c_auth_fail',
-        level: 'ERROR',
-        description: 'Error trying to authenticate against B2C API: ' + err?.message,
-      });
-
-      return false;
-    }
-  }
-
-  /**
-   * Applies a get request
-   * @param host 
-   * @param requestConfig
+   * Returns a list of user containing only the user that matches with the email
+   * @param {String} customerEmail Customer email
    * @returns Http response
    */
-  async getAsync(host: string, requestConfig?: any): Promise<any> {
+  async getUserByEmail(customerEmail: string): Promise<any> {
     try {
-      const response = await this.httpService.get(host, requestConfig).toPromise();
+      const response = await this.httpService.get('/clients', {
+        params: {
+          filter: `{"email":"${customerEmail}"}`,
+        },
+      }).toPromise();
+
       return response?.data?.data;
     } catch (err) {
       this.logger.error({
         datetime: new Date(),
         appId: '',
-        event: 'b2c_get_request_fail',
+        event: 'b2c_get_user_by_email_fail',
         level: 'ERROR',
-        description: 'Error trying to get a resource against B2C API: ' + err?.message,
+        description: 'Error trying to get a user against B2C API: ' + err?.message,
       });
 
       return false;

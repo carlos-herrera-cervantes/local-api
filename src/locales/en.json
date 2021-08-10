@@ -1,4 +1,5 @@
 {
   "TokenExpiredError": "Expired token.",
-  "MissingCustomer": "Customer not found."
+  "MissingCustomer": "Customer not found.",
+  "InvalidCredentials": "Invalid credentials."
 }

@@ -12,7 +12,6 @@ import { DatesModule } from '../dates/dates.module';
 @Module({
   imports: [
     MongooseModule.forFeature([{ name: Customer.name, schema: CustomerSchema }]),
-    ConfigModule,
     B2CModule,
     ShiftsModule,
     AuthModule,

@@ -22,8 +22,12 @@ export class AuthService {
   async validateUser(email: string, password: string): Promise<any> {
     const filter = { criteria: { email } } as IMongoDBFilter;
     const user = await this.usersService.getOneAsync(filter) as User;
+    const isValidPassword = await this.hashingService.compareAsync(password, user?.password)
+      .catch(_ => {
+        throw new Error('InvalidCredentials');
+      });
 
-    if (await this.hashingService.compareAsync(password, user.password)) {
+    if (isValidPassword) {
       const { password, ...result } = user;
       return result;
     }

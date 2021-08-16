@@ -503,7 +503,7 @@ export class SalesService extends BaseService {
     const base = subtotal - iepsPerLiter;
     const ivaOnCost = base * IVA?.percentage;
 
-    return product?.pricePublic - ivaOnCost;
+    return (product?.pricePublic * product?.quantity) - ivaOnCost;
   }
 
   /**
@@ -513,13 +513,12 @@ export class SalesService extends BaseService {
    */
   private getPriceWithoutVat(product: any): number {
     const productQuantity = product?.quantity;
-    const vat = product?.taxes.find((tax: Tax) => tax?.name == 'IVA');
-    const tax = vat?.percentage * productQuantity;
+    const vat = product?.taxes.find((tax: Tax) => tax?.name == 'IVA') as Tax;
     const pricePublic = product?.pricePublic;
 
-    return tax == 0 ?
-      (pricePublic * productQuantity) / (1.16 * productQuantity) :
-      (pricePublic * productQuantity) / (tax + 1);
+    return !vat ?
+      (pricePublic * productQuantity) / 1.16 :
+      (pricePublic * productQuantity) / (vat?.percentage + 1);
   }
 
 }

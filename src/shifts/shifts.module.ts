@@ -4,7 +4,6 @@ import { ShiftsController } from './shifts.controller';
 import { ShiftsService } from './shifts.service';
 import { Shift, ShiftSchema } from './schemas/shift.schema';
 import { DatesModule } from '../dates/dates.module';
-import { AuthModule } from '../auth/auth.module';
 import { CollectsModule } from '../collects/collects.module';
 import { SalesModule } from '../sales/sales.module';
 
@@ -12,7 +11,6 @@ import { SalesModule } from '../sales/sales.module';
   imports: [
     MongooseModule.forFeature([{ name: Shift.name, schema: ShiftSchema }]),
     DatesModule,
-    AuthModule,
     CollectsModule,
     forwardRef(() => SalesModule)
   ],

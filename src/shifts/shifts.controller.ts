@@ -10,7 +10,8 @@ import {
   UseInterceptors,
   Query,
   Headers,
-  HttpCode
+  HttpCode,
+  Req
 } from '@nestjs/common';
 import {
   ApiProduces,
@@ -28,12 +29,12 @@ import { UpdateShiftDto } from './dto/update-shift.dto';
 import { ListAllShiftDto, SingleShiftDto } from './dto/list-all-shift.dto';
 import { SingleCutTurnDto } from './dto/cut-turn.dto';
 import { ShiftsService } from './shifts.service';
-import { AuthService } from '../auth/auth.service';
 import { DateService } from '../dates/dates.service';
 import { SalesService } from '../sales/sales.service';
 import { CollectMoneyService } from '../collects/collects.service';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { ExistsShiftGuard } from './guards/exists-shift.guard';
+import { RolesGuard } from '../auth/guards/roles.guard';
 import { Roles } from '../auth/roles.decorator';
 import { Role } from '../base/enums/role.enum';
 import { MongoDBFilter } from '../base/entities/mongodb-filter.entity';
@@ -45,14 +46,13 @@ import { FailResponseDto } from '../base/dto/fail-response.dto';
 @ApiTags('Shifts')
 @ApiConsumes('application/json')
 @ApiProduces('application/json')
-@UseGuards(JwtAuthGuard)
+@UseGuards(JwtAuthGuard, RolesGuard)
 @UseInterceptors(TransformInterceptor)
 @Controller('/api/v1/shifts')
 export class ShiftsController {
   
   constructor(
     private shiftsService: ShiftsService,
-    private authService: AuthService,
     private collectService: CollectMoneyService,
     private dateService: DateService,
     private salesService: SalesService
@@ -85,10 +85,12 @@ export class ShiftsController {
   @Roles(Role.All)
   async cutAsync(
     @Query('previous') previous: boolean,
-    @Headers('authorization') authorization: string
+    @Req() req: any
   ): Promise<any> {
-    const token = authorization?.split(' ').pop();
-    const { sub } = await this.authService.getPayload(token);
+    const sub = req?.user?.sub;
+
+    if (!sub) return;
+    
     const [shifts, _] = await Promise.all([
       this.shiftsService.getAllAsync(),
       this.collectService.collectAllAsync(sub)

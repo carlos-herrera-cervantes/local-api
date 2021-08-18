@@ -17,6 +17,7 @@ import {
 import { TransformInterceptor } from '../base/interceptors/response.interceptor';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { AssignShiftGuard } from '../shifts/guards/assign-shift.guard';
+import { RolesGuard } from '../auth/guards/roles.guard';
 import { CustomersService } from "./customers.service";
 import { B2CService } from "../b2c/b2c.service";
 import { IMongoDBFilter } from "../base/entities/mongodb-filter.entity";
@@ -29,9 +30,8 @@ import { HttpExceptionFilter } from '../config/exceptions/http-exception.filter'
 
 @ApiTags('Positions')
 @ApiProduces('application/json')
-@UseGuards(JwtAuthGuard)
+@UseGuards(JwtAuthGuard, RolesGuard)
 @UseFilters(new HttpExceptionFilter())
-@UseGuards(AssignShiftGuard)
 @UseInterceptors(TransformInterceptor)
 @Controller('/api/v1/customers')
 export class CustomersController {
@@ -46,6 +46,7 @@ export class CustomersController {
   @ApiForbiddenResponse({ description: 'Forbidden resource', type: FailResponseDto })
   @ApiNotFoundResponse({ description: 'Resource not found', type: FailResponseDto })
   @ApiInternalServerErrorResponse({ description: 'Server error' })
+  @UseGuards(AssignShiftGuard)
   @Roles(Role.All)
   async syncCustomerAsync(
     @Param('customerEmail') customerEmail: string

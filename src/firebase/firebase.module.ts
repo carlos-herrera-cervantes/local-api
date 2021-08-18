@@ -6,6 +6,7 @@ import { PaymentMethodModule } from '../paymentMethods/paymentMethods.module';
 import { StationsModule } from '../stations/stations.module';
 import { FirebaseService } from './firebase.service';
 import { TaskCreatedListener } from './listeners/task-created.listener';
+import { SaleClosedListener } from './listeners/sale-closed.listener';
 
 @Module({
   imports: [
@@ -15,7 +16,7 @@ import { TaskCreatedListener } from './listeners/task-created.listener';
     PaymentMethodModule,
     StationsModule
   ],
-  providers: [FirebaseService, TaskCreatedListener],
+  providers: [FirebaseService, TaskCreatedListener, SaleClosedListener],
   exports: [FirebaseService]
 })
 export class FirebaseModule {}

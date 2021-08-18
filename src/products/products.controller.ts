@@ -23,6 +23,7 @@ import { UpdateProductDto } from './dto/update-product.dto';
 import { ListAllProductDto, SingleProductDto } from './dto/list-all-product.dto';
 import { ProductsService } from './products.service';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
+import { RolesGuard } from '../auth/guards/roles.guard';
 import { Roles } from '../auth/roles.decorator';
 import { Role } from '../base/enums/role.enum';
 import { QueryParamsListDto } from '../base/dto/base-list.dto';
@@ -34,7 +35,7 @@ import { TransformInterceptor } from '../base/interceptors/response.interceptor'
 @ApiTags('Products')
 @ApiConsumes('application/json')
 @ApiProduces('application/json')
-@UseGuards(JwtAuthGuard)
+@UseGuards(JwtAuthGuard, RolesGuard)
 @UseInterceptors(TransformInterceptor)
 @Controller('/api/v1/products')
 export class ProductsController {

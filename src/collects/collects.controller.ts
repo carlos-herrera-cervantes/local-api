@@ -31,6 +31,7 @@ import { FailResponseDto } from '../base/dto/fail-response.dto';
 import { CollectMoneyService } from './collects.service';
 import { AuthService } from '../auth/auth.service';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
+import { RolesGuard } from '../auth/guards/roles.guard';
 import { Roles } from '../auth/roles.decorator';
 import { Role } from '../base/enums/role.enum';
 import { QueryParamsListDto } from '../base/dto/base-list.dto';
@@ -42,7 +43,7 @@ import { successCreatedCollectEvent } from './logger/index';
 @ApiTags('Collects')
 @ApiConsumes('application/json')
 @ApiProduces('application/json')
-@UseGuards(JwtAuthGuard)
+@UseGuards(JwtAuthGuard, RolesGuard)
 @UseInterceptors(TransformInterceptor)
 @Controller('/api/v1/collects')
 export class CollectsController {

@@ -41,7 +41,7 @@ export class SalesService extends BaseService {
       ]
     } as IMongoDBFilter;
 
-    const sale = await super.getByIdAsync(id, filter) as any;
+    const sale = await this.getByIdAsync(id, filter) as any;
 
     return {
       _id: sale?._id?.toString(),
@@ -96,7 +96,7 @@ export class SalesService extends BaseService {
   async initializeSaleObject(customerId: string, positionId: string, userId: string): Promise<any> {
     const filter = { sort: '-consecutive', page: 0, pageSize: 1 } as IMongoDBFilter;
     const [lastSale, station] = await Promise.all([
-      super.getAllAsync(filter),
+      this.getAllAsync(filter),
       this.stationsService.getOneAsync()
     ]);
 
@@ -177,7 +177,7 @@ export class SalesService extends BaseService {
     } as IMongoDBFilter
 
     const [sales, collects] = await Promise.all([
-      super.getAllAsync(filterSale),
+      this.getAllAsync(filterSale),
       this.collectsService.getAllAsync({ criteria: filterBase } as IMongoDBFilter)
     ]);
 

@@ -33,6 +33,7 @@ import { AuthService } from '../auth/auth.service';
 import { Sale } from '../sales/schemas/sale.schema';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { AssignShiftGuard } from '../shifts/guards/assign-shift.guard';
+import { RolesGuard } from '../auth/guards/roles.guard';
 import { ExistsPositionGuard } from './guards/exists-position.guard';
 import { ExistsCustomerGuard } from '../customers/guards/exists-customer.guard';
 import { Roles } from '../auth/roles.decorator';
@@ -46,8 +47,7 @@ import { TransformInterceptor } from '../base/interceptors/response.interceptor'
 @ApiTags('Positions')
 @ApiConsumes('application/json')
 @ApiProduces('application/json')
-@UseGuards(JwtAuthGuard)
-@UseGuards(AssignShiftGuard)
+@UseGuards(JwtAuthGuard, RolesGuard)
 @UseInterceptors(TransformInterceptor)
 @Controller('/api/v1/positions')
 export class PositionsController {
@@ -63,6 +63,7 @@ export class PositionsController {
   @ApiForbiddenResponse({ description: 'Forbidden resource', type: FailResponseDto })
   @ApiInternalServerErrorResponse({ description: 'Server error' })
   @Roles(Role.All)
+  @UseGuards(AssignShiftGuard)
   async getAllAsync(@Query() params: QueryParamsListDto): Promise<IPaginatorData<Position>> {
     const filter = new MongoDBFilter(params)
       .setCriteria()
@@ -84,6 +85,7 @@ export class PositionsController {
   @ApiNotFoundResponse({ description: 'Resource not found', type: FailResponseDto })
   @ApiInternalServerErrorResponse({ description: 'Server error' })
   @Roles(Role.All)
+  @UseGuards(AssignShiftGuard)
   @UseGuards(ExistsPositionGuard)
   async getByIdAsync(@Param('id') id: string): Promise<Position> {
     return await this.positionsService.getByIdAsync(id);
@@ -105,6 +107,7 @@ export class PositionsController {
   @ApiUnprocessableEntityResponse({ description: 'Invalid model', type: FailResponseDto })
   @ApiInternalServerErrorResponse({ description: 'Server error' })
   @Roles(Role.All)
+  @UseGuards(AssignShiftGuard)
   @UseGuards(ExistsPositionGuard)
   @UseGuards(ExistsCustomerGuard)
   async createSaleAsync(

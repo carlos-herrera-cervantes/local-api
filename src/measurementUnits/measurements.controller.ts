@@ -28,6 +28,7 @@ import { ListAllMeasurementDto, SingleMeasurementDto } from './dto/list-all-meas
 import { FailResponseDto } from '../base/dto/fail-response.dto';
 import { MeasurementsService } from './measurements.service';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
+import { RolesGuard } from '../auth/guards/roles.guard';
 import { ExistsMeasurementGuard } from './guards/exists-measurement.guard';
 import { Roles } from '../auth/roles.decorator';
 import { Role } from '../base/enums/role.enum';
@@ -39,7 +40,7 @@ import { TransformInterceptor } from '../base/interceptors/response.interceptor'
 @ApiTags('Measurement Units')
 @ApiConsumes('application/json')
 @ApiProduces('application/json')
-@UseGuards(JwtAuthGuard)
+@UseGuards(JwtAuthGuard, RolesGuard)
 @UseInterceptors(TransformInterceptor)
 @Controller('/api/v1/measurement-units')
 export class MeasurementsController {

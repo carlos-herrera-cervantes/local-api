@@ -70,8 +70,8 @@ describe('SalesService', () => {
         {
           provide: getModelToken(Sale.name),
           useValue: {
-            find: jest.fn().mockImplementation(() => Promise.resolve([GLOBAL_SALE_MOCKED])),
-            findById: jest.fn().mockImplementation(() => Promise.resolve(GLOBAL_SALE_MOCKED)),
+            find: jest.fn().mockReturnValue([GLOBAL_SALE_MOCKED]),
+            findById: jest.fn().mockReturnValue(GLOBAL_SALE_MOCKED)
           }
         },
         {
@@ -115,6 +115,9 @@ describe('SalesService', () => {
   });
 
   it('Should return the skeleton of a sale to put in the messaging queue', async () => {
+    const salesServiceMock1 = jest.spyOn(salesService, 'getByIdAsync')
+      .mockImplementation(() => Promise.resolve(GLOBAL_SALE_MOCKED));
+
     const result = await salesService.createCloudStructure('mockId1');
     const mocked = {
       _id: 'mockId1',
@@ -158,6 +161,7 @@ describe('SalesService', () => {
       }
     };
 
+    expect(salesServiceMock1).toBeCalledTimes(1);
     expect(result).toStrictEqual(mocked);
   });
 
@@ -165,6 +169,9 @@ describe('SalesService', () => {
     const stationsServiceMock1 = jest
       .spyOn(stationsService, 'getOneAsync')
       .mockImplementation(() => Promise.resolve({ _id: 'station1' }));
+
+    const salesServiceMock1 = jest.spyOn(salesService, 'getAllAsync')
+      .mockImplementation(() => Promise.resolve([GLOBAL_SALE_MOCKED]));
 
     const result = await salesService.initializeSaleObject('customer1', 'position1', 'user1');
     const mocked = {
@@ -177,6 +184,7 @@ describe('SalesService', () => {
     };
 
     expect(stationsServiceMock1).toBeCalledTimes(1);
+    expect(salesServiceMock1).toBeCalledTimes(1);
     expect(result).toStrictEqual(mocked);
   });
 
@@ -263,6 +271,9 @@ describe('SalesService', () => {
       .spyOn(collectsService, 'getAllAsync')
       .mockImplementation(() => Promise.resolve(mockedCollects));
 
+    const salesServiceMock1 = jest.spyOn(salesService, 'getAllAsync')
+      .mockImplementation(() => Promise.resolve([GLOBAL_SALE_MOCKED]));
+
     const result = await salesService.doReportAsync({ start: '', end: '' }, '');
     const expectedResult = {
       products: [
@@ -282,6 +293,7 @@ describe('SalesService', () => {
     };
 
     expect(collectsServiceMock1).toBeCalledTimes(1);
+    expect(salesServiceMock1).toBeCalledTimes(1);
     expect(result).toStrictEqual(expectedResult);
   });
 });

@@ -7,9 +7,9 @@ import {
   Param,
   UseGuards,
   UseInterceptors,
-  Headers,
   HttpCode,
-  Query
+  Query,
+  Req
 } from '@nestjs/common';
 import {
   ApiProduces,
@@ -26,10 +26,8 @@ import { UpdateSaleDto } from './dto/update-sale.dto';
 import { SingleSaleDto, ListAllSaleDto } from './dto/list-all-sale.dto';
 import { SalesService } from './sales.service';
 import { ShiftsService } from '../shifts/shifts.service';
-import { AuthService } from '../auth/auth.service';
 import { DateService } from '../dates/dates.service';
 import { PaymentTransactionService } from '../paymentTransactions/paymentTransactions.service';
-import { FirebaseService } from '../firebase/firebase.service';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { AssignShiftGuard } from '../shifts/guards/assign-shift.guard';
 import { CalculateTotalGuard } from './guards/calculate-total.guard';
@@ -39,6 +37,7 @@ import { AddProductGuard } from './guards/add-product.guard';
 import { ExistsSaleGuard } from './guards/exists-sale.guard';
 import { ExistsPositionGuard } from '../positions/guards/exists-position.guard';
 import { ExistsPaymentGuard } from '../paymentMethods/guards/exists-payment.guard';
+import { RolesGuard } from '../auth/guards/roles.guard';
 import { Roles } from '../auth/roles.decorator';
 import { Role } from '../base/enums/role.enum';
 import { MongoDBFilter } from '../base/entities/mongodb-filter.entity';
@@ -51,8 +50,7 @@ import { TransformInterceptor } from '../base/interceptors/response.interceptor'
 @ApiTags('Sales')
 @ApiConsumes('application/json')
 @ApiProduces('application/json')
-@UseGuards(JwtAuthGuard)
-@UseGuards(AssignShiftGuard)
+@UseGuards(JwtAuthGuard, RolesGuard)
 @UseInterceptors(TransformInterceptor)
 @Controller('/api/v1/sales')
 export class SalesController {
@@ -60,10 +58,8 @@ export class SalesController {
   constructor(
     private salesService: SalesService,
     private shiftsService: ShiftsService,
-    private authService: AuthService,
     private dateService: DateService,
-    private paymentTransactionService: PaymentTransactionService,
-    private firebaseService: FirebaseService
+    private paymentTransactionService: PaymentTransactionService
   ) {}
 
   @Get()
@@ -92,12 +88,15 @@ export class SalesController {
   @ApiForbiddenResponse({ description: 'Forbidden resource', type: FailResponseDto })
   @ApiInternalServerErrorResponse({ description: 'Server error' })
   @Roles(Role.All)
+  @UseGuards(AssignShiftGuard)
   async getMeAsync(
-    @Headers('authorization') authorization: string,
+    @Req() req: any,
     @Query() params: QueryParamsListDto
   ): Promise<IPaginatorData<Sale>> {
-    const token = authorization?.split(' ').pop();
-    const { sub } = await this.authService.getPayload(token);
+    const sub = req?.user?.sub;
+
+    if (!sub) return;
+
     const filter = new MongoDBFilter(params)
       .setCriteria()
       .setPagination()
@@ -132,14 +131,16 @@ export class SalesController {
   @ApiNotFoundResponse({ description: 'Resource not found', type: FailResponseDto })
   @ApiInternalServerErrorResponse({ description: 'Server error' })
   @Roles(Role.All)
+  @UseGuards(AssignShiftGuard)
   @UseGuards(ExistsPositionGuard)
   async getPendingsAsync(
-    @Headers('authorization') authorization : string,
+    @Req() req: any,
     @Param('id') id: string,
     @Query() params: QueryParamsListDto
   ): Promise<IPaginatorData<Sale>> {
-    const token = authorization?.split(' ').pop();
-    const { sub } = await this.authService.getPayload(token);
+    const sub = req?.user?.sub;
+
+    if (!sub) return;
 
     const shifts = await this.shiftsService.getAllAsync();
     const localDate = this.dateService.getLocalDate();
@@ -191,6 +192,7 @@ export class SalesController {
   @ApiNotFoundResponse({ description: 'Resource not found', type: FailResponseDto })
   @ApiInternalServerErrorResponse({ description: 'Server error' })
   @Roles(Role.All)
+  @UseGuards(AssignShiftGuard)
   @UseGuards(ExistsSaleGuard)
   @UseGuards(AddProductGuard)
   async addProductAsync(@Param('id') id : string, @Body() sale: UpdateSaleDto): Promise<Sale> {
@@ -203,6 +205,7 @@ export class SalesController {
   @ApiNotFoundResponse({ description: 'Resource not found', type: FailResponseDto })
   @ApiInternalServerErrorResponse({ description: 'Server error' })
   @Roles(Role.All)
+  @UseGuards(AssignShiftGuard)
   @UseGuards(ExistsSaleGuard)
   @UseGuards(CalculateTotalGuard)
   async calculateTotalAsync(@Param('id') id: string): Promise<Sale> {
@@ -218,6 +221,7 @@ export class SalesController {
   @ApiNotFoundResponse({ description: 'Resource not found', type: FailResponseDto })
   @ApiInternalServerErrorResponse({ description: 'Server error' })
   @Roles(Role.All)
+  @UseGuards(AssignShiftGuard)
   @UseGuards(ExistsSaleGuard)
   @UseGuards(PayGuard)
   @UseGuards(ExistsPaymentGuard)
@@ -245,27 +249,23 @@ export class SalesController {
   @ApiNotFoundResponse({ description: 'Resource not found', type: FailResponseDto })
   @ApiInternalServerErrorResponse({ description: 'Server error' })
   @Roles(Role.All)
+  @UseGuards(AssignShiftGuard)
   @UseGuards(ExistsSaleGuard)
   @UseGuards(CloseGuard)
   async closeAsync(
-    @Headers('authorization') authorization: string,
+    @Req() req: any,
     @Param('id') id: string
   ): Promise<Sale> {
-    const token = authorization?.split(' ').pop();
-    const { sub } = await this.authService.getPayload(token);
+    const sub = req?.user?.sub;
+
+    if (!sub) return;
 
     const [sale, saleCloud] = await Promise.all([
       this.salesService.getByIdAsync(id),
       this.salesService.createCloudStructure(id)
     ]);
-    const cloud = await this.firebaseService.tryInsertChildAsync(
-      `events/local/sales/${id}`,
-      saleCloud,
-      this.firebaseService.initializeApp()
-    );
 
     sale.status = '201';
-    cloud ? sale.sendToCloud = true : sale.sendToCloud = false;
 
     await Promise.all([
       this.salesService.chargeMoneyToUser(sub, saleCloud),

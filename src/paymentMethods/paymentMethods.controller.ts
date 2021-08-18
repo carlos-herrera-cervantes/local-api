@@ -10,6 +10,7 @@ import { Controller, Get, Param, UseGuards, UseInterceptors, Query } from '@nest
 import { PaymentMethod } from './schemas/paymentMethod.schema';
 import { PaymentMethodService } from './paymentMethods.service';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
+import { RolesGuard } from '../auth/guards/roles.guard';
 import { ExistsPaymentGuard } from './guards/exists-payment.guard';
 import { Roles } from '../auth/roles.decorator';
 import { Role } from '../base/enums/role.enum';
@@ -22,7 +23,7 @@ import { TransformInterceptor } from '../base/interceptors/response.interceptor'
 
 @ApiTags('Payment Methods')
 @ApiProduces('application/json')
-@UseGuards(JwtAuthGuard)
+@UseGuards(JwtAuthGuard, RolesGuard)
 @UseInterceptors(TransformInterceptor)
 @Controller('/api/v1/payment-methods')
 export class PaymentMethodController {

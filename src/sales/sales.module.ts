@@ -8,10 +8,8 @@ import { ProductsModule } from '../products/products.module';
 import { CollectsModule } from '../collects/collects.module';
 import { StationsModule } from '../stations/stations.module';
 import { ShiftsModule } from '../shifts/shifts.module';
-import { AuthModule } from '../auth/auth.module';
 import { DatesModule } from '../dates/dates.module';
 import { PaymentTransactionModule } from '../paymentTransactions/paymentTransactions.module';
-import { FirebaseModule } from '../firebase/firebase.module';
 import { PositionsModule } from '../positions/positions.module';
 import { PaymentMethodModule } from '../paymentMethods/paymentMethods.module';
 
@@ -23,10 +21,8 @@ import { PaymentMethodModule } from '../paymentMethods/paymentMethods.module';
     CollectsModule,
     StationsModule,
     forwardRef(() => ShiftsModule),
-    AuthModule,
     DatesModule,
     PaymentTransactionModule,
-    FirebaseModule,
     forwardRef(() => PositionsModule),
     PaymentMethodModule
   ],

@@ -1,15 +1,9 @@
 import { Model } from 'mongoose';
 import { IMongoDBFilter } from './entities/mongodb-filter.entity';
-
-interface IlookupParameters {
-  model: Model<any>,
-  filter: IMongoDBFilter,
-  operation?: string,
-  id?: string
-}
+import { IlookupParameters } from './interfaces/lookup-parameters.interface';
 
 export class BaseService {
-  constructor(private model: Model<any>) {}
+  constructor(private model: Model<any>) { }
 
   /**
    * Returns a list of all documents
@@ -17,14 +11,10 @@ export class BaseService {
    * @returns List of documents
    */
   async getAllAsync(filter?: IMongoDBFilter): Promise<any> {
-    try {
-      return await this.lookup({ model: this.model, filter })
+    return await this.mapSearch({ model: this.model, filter })
       ?.skip(filter?.page)
       ?.limit(filter?.pageSize)
       ?.sort(filter?.sort);
-    } catch (err) {
-      return await this.lookup({ model: this.model, filter });
-    }
   }
 
   /**
@@ -34,7 +24,7 @@ export class BaseService {
    * @returns Document
    */
   async getByIdAsync(id: string, filter?: IMongoDBFilter): Promise<any> {
-    return await this.lookup({ model: this.model, filter, operation: 'findById', id });
+    return await this.mapSearch({ model: this.model, filter, operation: 'findById', id });
   }
 
   /**
@@ -112,26 +102,20 @@ export class BaseService {
    * @param id Object ID
    * @returns Operation hook
    */
-   private lookup({ model, filter, operation, id }: IlookupParameters): any {
-     try {
-      const instance = operation == 'findById' ?
-        model.findById(id)?.lean() :
-          operation == 'findOne' ?
+  private mapSearch({ model, filter, operation, id }: IlookupParameters): any {
+    const instance = operation == 'findById' ?
+      model.findById(id)?.lean() :
+      operation == 'findOne' ?
         model.findOne(filter?.criteria)?.lean() :
-          model.find(filter?.criteria)?.lean();
+        model.find(filter?.criteria)?.lean();
 
-      filter?.relation?.forEach((relation: string) => {
-        const splited = relation.includes('.') ? relation.split('.') : relation;
-        const filter = this.getStringQuery(splited);
-        instance?.populate(filter);
-      });
+    filter?.relation?.forEach((relation: string) => {
+      const splited = relation.includes('.') ? relation.split('.') : relation;
+      const filter = this.mapReferences(splited);
+      instance?.populate(filter);
+    });
 
-      return instance;
-    } catch (err) {
-      return operation == 'findById' ? model.findById(id) :
-        operation == 'findOne' ? model.findOne(filter?.criteria) :
-        model.find(filter?.criteria);
-    }
+    return instance;
   }
 
   /**
@@ -139,7 +123,7 @@ export class BaseService {
    * @param {string | string[]} entities string or string array
    * @returns Query string
    */
-   private getStringQuery(entities: any): any {
+  private mapReferences(entities: any): any {
     switch (entities.length) {
       case 2: return {
         path: entities[0].includes('->') ? entities[0].replace('->', '.') : entities[0],

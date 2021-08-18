@@ -1,5 +1,5 @@
 import * as admin from 'firebase-admin';
-import { Injectable, OnModuleInit } from '@nestjs/common';
+import { Injectable, Logger, OnModuleInit } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { EventEmitter2 } from '@nestjs/event-emitter';
 import { TaskCreatedEvent } from './events/task-created.event';
@@ -8,24 +8,13 @@ const Queue = require('firebase-queue');
 
 @Injectable()
 export class FirebaseService implements OnModuleInit {
+  private readonly database: admin.database.Database;
+  private readonly logger: Logger = new Logger(FirebaseService.name);
 
   constructor(
     private configService: ConfigService,
     private eventEmitter: EventEmitter2
-  ) {}
-
-  onModuleInit() {
-    this.emitUsersEvent();
-    this.emitProductsEvent();
-    this.emitPaymentsEvent();
-    this.emitStationsEvent();
-  }
-
-  /**
-   * Initializes a new Firebase client
-   * @returns Firebase client
-   */
-  initializeApp(): admin.database.Database {
+  ) {
     const isEmptyApps = !admin.apps.length;
 
     if (isEmptyApps) {
@@ -39,7 +28,14 @@ export class FirebaseService implements OnModuleInit {
       }, 'Synchronizer');
     }
 
-    return admin.apps.pop()?.database();
+    this.database = admin.apps[0].database();
+  }
+
+  onModuleInit() {
+    this.emitUsersEvent();
+    this.emitProductsEvent();
+    this.emitPaymentsEvent();
+    this.emitStationsEvent();
   }
 
   /**
@@ -51,16 +47,16 @@ export class FirebaseService implements OnModuleInit {
    */
   async tryInsertChildAsync(
     path: string,
-    node: any,
-    database: admin.database.Database
-  ): Promise<boolean> {
-    try {
-      await database.ref(path).set(node);
-      return true;
-    }
-    catch (err) {
-      return false;
-    }
+    node: any
+  ): Promise<void> {
+    const resultSet = await this.database.ref(path).set(node);
+    this.logger.log({
+      datetime: new Date(),
+      appId: '',
+      event: 'insert_node_firebase',
+      level: 'INFO',
+      description: resultSet
+    });
   }
 
   /**
@@ -116,8 +112,7 @@ export class FirebaseService implements OnModuleInit {
    * @returns Event emitted
    */
   private emitBaseEvent(path: string): void {
-    const database = this.initializeApp();
-    const ref = database.ref(path);
+    const ref = this.database.ref(path);
 
     new Queue(ref, (data: any, progress: any, resolve: any, reject: any) => {
       const message = new TaskCreatedEvent(data);
@@ -132,9 +127,7 @@ export class FirebaseService implements OnModuleInit {
    * @returns Event emitted
    */
   private emitBaseEventFirebase(path: string): void {
-    const database = this.initializeApp();
-
-    database.ref(path).orderByChild('Model/createdAt').on('child_added', snapshot => {
+    this.database.ref(path).orderByChild('Model/createdAt').on('child_added', snapshot => {
       const obj = snapshot.val();
       const message = new TaskCreatedEvent(obj);
       this.eventEmitter.emit('task.created', message);

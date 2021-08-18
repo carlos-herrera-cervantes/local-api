@@ -9,9 +9,9 @@ import {
   UseGuards,
   UseInterceptors,
   HttpCode,
-  Headers,
   Query,
-  UseFilters
+  UseFilters,
+  Req
 } from '@nestjs/common';
 import {
   ApiProduces,
@@ -26,6 +26,7 @@ import {
 import { Roles } from '../auth/roles.decorator';
 import { Role } from '../base/enums/role.enum';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
+import { RolesGuard } from '../auth/guards/roles.guard';
 import { ExistsUserGuard } from './guards/exists-user.guard';
 import { MongoDBFilter } from '../base/entities/mongodb-filter.entity';
 import { Paginator, IPaginatorData } from '../base/entities/paginator.entity';
@@ -36,23 +37,19 @@ import { ListAllUserDto, SingleUserDto } from './dto/list-all-user.dto';
 import { QueryParamsListDto } from '../base/dto/base-list.dto';
 import { FailResponseDto } from '../base/dto/fail-response.dto';
 import { UsersService } from './users.service';
-import { AuthService } from '../auth/auth.service';
 import { TransformInterceptor } from '../base/interceptors/response.interceptor';
 import { HttpExceptionFilter } from '../config/exceptions/http-exception.filter';
 
 @ApiTags('Users')
 @ApiConsumes('application/json')
 @ApiProduces('application/json')
-@UseGuards(JwtAuthGuard)
+@UseGuards(JwtAuthGuard, RolesGuard)
 @UseFilters(new HttpExceptionFilter())
 @UseInterceptors(TransformInterceptor)
 @Controller('/api/v1/users')
 export class UsersController {
   
-  constructor(
-    private usersService: UsersService,
-    private authService: AuthService
-  ) {}
+  constructor(private readonly usersService: UsersService) {}
 
   @Get()
   @ApiOkResponse({ type: ListAllUserDto, isArray: false })
@@ -74,9 +71,11 @@ export class UsersController {
   @ApiForbiddenResponse({ description: 'Forbidden resource', type: FailResponseDto })
   @ApiInternalServerErrorResponse({ description: 'Server error' })
   @Roles(Role.All)
-  async getMeAsync(@Headers('authorization') authorization : string): Promise<User> {
-    const token = authorization?.split(' ').pop();
-    const { sub } = await this.authService.getPayload(token);
+  async getMeAsync(@Req() req: any): Promise<User> {
+    const sub = req?.user?.sub || false;
+
+    if (!sub) return;
+    
     return await this.usersService.getByIdAsync(sub);
   }
 

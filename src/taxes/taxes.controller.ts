@@ -28,6 +28,7 @@ import { ListAllTaxDto, SingleTaxDto } from './dto/list-all-tax.dto';
 import { TaxesService } from './taxes.service';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { ExistsTaxGuard } from './guards/exists-tax.guard';
+import { RolesGuard } from '../auth/guards/roles.guard';
 import { Roles } from '../auth/roles.decorator';
 import { Role } from '../base/enums/role.enum';
 import { QueryParamsListDto } from '../base/dto/base-list.dto';
@@ -39,7 +40,7 @@ import { TransformInterceptor } from '../base/interceptors/response.interceptor'
 @ApiTags('Taxes')
 @ApiConsumes('application/json')
 @ApiProduces('application/json')
-@UseGuards(JwtAuthGuard)
+@UseGuards(JwtAuthGuard, RolesGuard)
 @UseInterceptors(TransformInterceptor)
 @Controller('/api/v1/taxes')
 export class TaxesController {

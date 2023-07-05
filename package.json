@@ -36,7 +36,7 @@
     "class-transformer": "^0.4.0",
     "class-validator": "^0.13.1",
     "dayjs": "^1.10.4",
-    "firebase-admin": "^9.6.0",
+    "firebase-admin": "^11.9.0",
     "firebase-queue": "^1.6.1",
     "helmet": "^4.6.0",
     "i18n": "^0.13.3",

@@ -40,7 +40,7 @@
     "firebase-queue": "^1.6.1",
     "helmet": "^4.6.0",
     "i18n": "^0.13.3",
-    "mongoose": "^5.12.4",
+    "mongoose": "^5.13.20",
     "passport": "^0.4.1",
     "passport-jwt": "^4.0.0",
     "passport-local": "^1.0.0",
